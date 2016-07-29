@@ -1,9 +1,9 @@
-##zabbix修炼日志
+# zabbix修炼日志
 ****
 
 
 
-# bsd zabbix
+## bsd zabbix
 
 [download](http://www.zabbix.com/download.php)
 

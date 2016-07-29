@@ -30,6 +30,26 @@ _ssl _ssl.c \
 ./pip install elasticsearch
 ```
 
+#### python for postgres
+fix bugs
+
+场景：
+
+```
+import psycopg2
+  File "/Library/Python/2.7/site-packages/psycopg2/__init__.py", line 50, in 
+    from psycopg2._psycopg import BINARY, NUMBER, STRING, DATETIME, ROWID
+ImportError: dlopen(/Library/Python/2.7/site-packages/psycopg2/_psycopg.so, 2): Library not loaded: libssl.1.0.0.dylib
+  Referenced from: /Library/Python/2.7/site-packages/psycopg2/_psycopg.so
+  Reason: image not found
+```
+solution:
+```
+pip install psycopg2
+
+export DYLD_FALLBACK_LIBRARY_PATH=/Library/PostgreSQL/9.5/lib:$DYLD_LIBRARY_PATH
+```
+
 ###install python3.5.1 on mac
 
 ```
