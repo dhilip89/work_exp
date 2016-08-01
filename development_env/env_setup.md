@@ -30,6 +30,12 @@ _ssl _ssl.c \
 ./pip install elasticsearch
 ```
 
+```
+Q: Error: pg_config executable not found.
+A: 
+	> for centOs: yum install postgresql-devel
+```
+
 #### python for postgres
 fix bugs
 
