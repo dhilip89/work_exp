@@ -190,4 +190,7 @@ ps -ax | grep cron
 
 #每周一凌晨00:20执行一次
 20 0 * * 1      cd /opt/www/sc_poppy/python/scripts/ && /usr/local/bin/python /opt/www/sc_poppy/python/scripts/user_fate.script.py week >> /opt/www/sc_poppy/python/log/user_fate.log
+
+#每五分钟执行一次
+*/5 * * * *     cd /opt/www/sc_poppy/python/scripts && /opt/www/python_env/bin/python /opt/www/sc_poppy/python/scripts/user_market.script.py > //opt/www/sc_poppy/python/scripts/user_market.log
 ```

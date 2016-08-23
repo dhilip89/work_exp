@@ -88,3 +88,7 @@ install pip
 	./Configure darwin64-x86_64-cc shared --openssldir=/usr/local/ssl/macos-x86_64
 	make depend
 	sudo make install
+
+
+##Final 使用技巧：
+pycharm python 代码格式化： command + alt + l
