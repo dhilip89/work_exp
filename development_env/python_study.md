@@ -87,6 +87,47 @@ dict= sorted(dic.iteritems(), key=lambda d:d[0]) d[0]
 print dict
 ```
 
+### Three Ways to Read A Text File Line by Line in Python
+1.One easy way to read a text file and parse each line is to use the python statement “readlines” on a file object. 
+
+```
+## Open the file with read only permit
+f = open('myTextFile.txt', "r")
+
+## use readlines to read all lines in the file
+## The variable "lines" is a list containing all lines
+lines = f.readlines()
+
+## close the file after reading the lines.
+f.close()
+
+```
+
+2.Read a Text File Line by Line Using While Statement in Python
+
+```
+## Open the file with read only permit
+f = open('myTextFile.txt')
+## Read the first line 
+line = f.readline()
+
+## If the file is not empty keep reading line one at a time
+## till the file is empty
+while line:
+    print line
+    line = f.readline()
+f.close()
+```
+
+3.Read a Text File Line by Line Using an Iterator in Python
+
+```
+f = open('myfile.txt')
+for line in iter(f):
+    print line
+f.close()
+```
+
 
 ##Final 使用技巧：
 pycharm python 代码格式化： command + alt + l
