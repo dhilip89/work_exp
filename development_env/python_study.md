@@ -131,3 +131,28 @@ f.close()
 
 ##Final 使用技巧：
 pycharm python 代码格式化： command + alt + l
+
+
+### Add alternatives to '%matplotlib inline' in ipython
+
+```
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+goog = pd.read_csv("/Users/rick/Downloads/goog.csv")
+goog['Log_Ret'] = np.log(goog['Close'] / goog['Close'].shift(1))
+goog['Volatility'] = pd.rolling_std(goog['Log_Ret'], window=252)*np.sqrt(252)
+
+#for linux
+%matplotlib inline goog[['Close', 'Volatility']].plot(subplots=True, color='blue', figsize=(8, 6))
+
+#for mac
+%matplotlib osx goog[['Close', 'Volatility']].plot(subplots=True, color='blue', figsize=(8, 6))
+
+
+ts = pd.Series(np.random.randn(1000), index=pd.date_range('1/1/2000', periods=1000));
+ts = ts.cumsum()
+ts.plot()
+```
