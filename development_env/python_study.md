@@ -156,3 +156,16 @@ ts = pd.Series(np.random.randn(1000), index=pd.date_range('1/1/2000', periods=10
 ts = ts.cumsum()
 ts.plot()
 ```
+
+
+
+### OS X 10.8.x, uWSGI 2.0.3 linking error
+
+```
+C_INCLUDE_PATH=/usr/local/include LIBRARY_PATH=/usr/local/lib pip install uwsgi
+
+
+uwsgi --socket 0.0.0.0:8800 --protocol=http -w wsgi
+
+uwsgi --http-socket :9090 --plugin python --wsgi-file app/index.py
+```
