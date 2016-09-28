@@ -1,0 +1,160 @@
+curl http://es-admin.xiaoxinyong.com:80/logstash-garen_contact_address-*-*/_search?pretty -d '
+{
+  "query": {
+    "filtered": {
+      "filter": {
+        "bool": {
+          "should": [],
+          "must_not": [],
+          "must": [
+            {
+              "term": {
+                "uid": "5932d962-8383-ee07-517f-a7b6abd92649"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+'
+
+
+curl -XGET 'http://es-admin.xiaoxinyong.com:80/logstash-garen_contact_address-*-*/_search?pretty' -d '{
+    "query" : {
+        "match" : { "uid" : "4c323531-aa31-9f27-6aa7-37ab2e5a9218" }
+    }
+}
+'
+
+
+curl -XGET 'http://es-admin.xiaoxinyong.com:80/logstash-garen_contact_address-*-*/_search?pretty' -d '
+{
+  "_source":["uid","phone","name"],
+  "query": {
+    "filtered": {
+      "query": {
+        "match": {
+          "uid": "41e3bd15-c4f7-1c2a-6362-f66ac2efb20e"
+        }
+      }
+    }
+  }
+}
+'
+
+curl http://es-admin.xiaoxinyong.com:80/logstash-garen_user_behavior-*-*/_search?pretty -d '
+{
+    "query": {
+        "filtered" : {
+            "filter" : {
+                 "bool" : {
+                    "must" : [
+                        { "term" : { "action" : "user_login_success" } }
+                    ]
+                }
+            }
+        }
+    }
+}
+'
+
+"match":{"uid":"774196d0-b7fe-9351-6a01-b823eb59068c"},
+
+curl http://es-admin.xiaoxinyong.com:80/logstash-garen_user_behavior-*-*/garen_user_behavior/_search?pretty -d '
+{
+    "_source":["uid", "action"],
+    "query": {
+        "filtered" : {
+            "filter":{
+                "bool": {
+                    "must":     { "match": { "uid": "774196d0-b7fe-9351-6a01-b823eb59068c" }},
+                    "must_not": { "match": { "tag":   "spam" }},
+                    "should": [
+                        { "match": { "action": "user_login_success" }}
+                    ]
+                }
+            }
+        }
+    }
+}
+'
+
+{ "match": { "action": "user_login_success" }},
+
+curl http://es-admin.xiaoxinyong.com:80/logstash-garen_user_behavior-*-*/garen_user_behavior/_search?pretty -d '
+{
+    "_source":["uid", "action", "device_os", "device_imei", "device_udid", "device_appv", "request_time"],
+    "query": {
+        "filtered" : {
+            "filter":{
+                "bool": {
+                    "must":[
+                      { "term": { "uid.raw": "02a94bd4-3086-14c7-53f4-9d9653ae48ce" }},
+                      { "term": { "action": "user_login_success" }}
+                    ]
+                }
+            }
+        }
+    }
+}
+'
+
+curl http://es-admin.xiaoxinyong.com:80/logstash-garen_user_behavior-*-*/garen_user_behavior/_search?pretty -d '
+{
+    "_source":["uid", "action", "device_os", "device_imei", "device_udid", "device_appv", "request_time"],
+    "query": {
+        "filtered" : {
+            "filter":{
+                "bool": {
+                    "must":[
+                      { "term": { "device_imei.raw": "867368021149565" }},
+                      { "term": { "action": "user_login_success" }}
+                    ]
+                }
+            }
+        }
+    }
+}
+'
+
+//contact
+curl http://es-admin.xiaoxinyong.com:80/logstash-garen_contact_address-*-*/garen_contact_address/_search?pretty -d '
+{
+    "_source":["uid"],
+    "query": {
+        "filtered" : {
+            "filter":{
+                "bool": {
+                    "must":[
+                      { "term": { "uid.raw": "680ac331-8c31-ccc2-569c-28d4ebebd146" }},
+                      { "term": { "action": "contact_address" }}
+                    ]
+                }
+            }
+        }
+    }
+}
+'
+
+
+//contact
+curl http://es-admin.xiaoxinyong.com:80/logstash-garen_contact_address-*-*/garen_contact_address/_search?pretty -d '
+{
+    "_source":["uid", "phone", "name"],
+    "query": {
+        "filtered" : {
+            "filter":{
+                "bool": {
+                    "must":[
+                      { "term": { "action": "contact_address" }},
+                      { "term": { "uid.raw": "e402db55-fe66-87a9-264a-38ffd661d397" }},
+                      { "term": { "apply_no.raw": "XJ2016081214709943160661232" }}
+                    ]
+                }
+            }
+        }
+    }
+}'
+

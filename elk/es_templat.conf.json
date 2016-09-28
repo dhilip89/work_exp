@@ -1,0 +1,209 @@
+``` template
+curl -XPUT http://localhost:9200/_template/template_0 -d '
+{
+  "order" : 1,
+  "template": "logstash-garen*",
+  "mappings": {
+    "garen": {
+      "properties": {
+        "date_time" : {
+            "type" : "date",
+            "format" : "yyyy:MM:dd HH:mm:ss||yyyy:MM:dd"
+        },
+        "request_time" : {
+            "type" : "date",
+            "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd"
+        }
+      }
+    }
+  }
+}
+'
+```
+//1
+curl -XPUT http://localhost:9200/_template/template_1 -d '
+{
+  "order" : 1,
+  "template": "logstash-garen*",
+  "mappings": {
+    "garen": {
+      "properties": {
+        "date_time" : {
+            "type" : "date",
+            "format" : "yyyy:MM:dd HH:mm:ss||yyyy:MM:dd"
+        },
+        "request_time" : {
+            "type" : "date",
+            "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd"
+        },
+        "start_time" : {
+            "type" : "date",
+            "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd"
+        }
+      }
+    }
+  }
+}
+'
+
+//2
+curl -XPUT http://localhost:9200/_template/template_2 -d '
+{
+  "order" : 1,
+  "template": "logstash-john*",
+  "mappings": {
+    "john": {
+      "properties": {
+        "date_time" : {
+            "type" : "date",
+            "format" : "yyyy:MM:dd HH:mm:ss||yyyy:MM:dd"
+        },
+        "request_time" : {
+            "type" : "date",
+            "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd"
+        }
+      }
+    }
+  }
+}
+'
+//3
+curl -XPUT http://es-admin.xiaoxinyong.com//_template/template_3 -d '
+{
+  "order" : 1,
+  "template": "logstash-cash_loan*",
+  "mappings": {
+    "cash": {
+      "properties": {
+        "date_time" : {
+            "type" : "date",
+            "format" : "yyyy:MM:dd HH:mm:ss||yyyy:MM:dd"
+        },
+        "request_time" : {
+            "type" : "date",
+            "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd"
+        },
+        "start_time" : {
+            "type" : "date",
+            "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd"
+        }
+      }
+    }
+  }
+}
+'
+//4 cash_loan
+curl -XPUT http://es-admin.xiaoxinyong.com//_template/template_4 -d '
+{
+  "order" : 1,
+  "template": "logstash-cash_loan*",//-------
+  "mappings": {
+    "cash": {//-------
+      "properties": {
+        "date_time" : {
+            "type" : "date",
+            "format" : "dateOptionalTime"
+        },
+        "request_time" : {
+            "type" : "date",
+            "format" : "dateOptionalTime"
+        },
+        "start_time" : {
+            "type" : "date",
+            "format" : "dateOptionalTime"
+        }
+      }
+    }
+  }
+}
+'
+
+//-------------
+//template index: garen, john, cash_loan
+curl -XPUT http://es-admin.xiaoxinyong.com//_template/template_1 -d '
+{
+  "order" : 1,
+  "template": "logstash-garen*",
+  "mappings": {
+    "garen": {
+      "properties": {
+        "date_time" : {
+            "type" : "date",
+            "format" : "dateOptionalTime"
+        },
+        "request_time" : {
+            "type" : "date",
+            "format" : "dateOptionalTime"
+        },
+        "start_time" : {
+            "type" : "date",
+            "format" : "dateOptionalTime"
+        }
+      }
+    }
+  }
+}
+'
+
+//2
+curl -XPUT http://es-admin.xiaoxinyong.com//_template/template_2 -d '
+{
+  "order" : 1,
+  "template": "logstash-john*",
+  "mappings": {
+    "john": {
+      "properties": {
+        "date_time" : {
+            "type" : "date",
+            "format" : "dateOptionalTime"
+        },
+        "request_time" : {
+            "type" : "date",
+            "format" : "dateOptionalTime"
+        },
+        "start_time" : {
+            "type" : "date",
+            "format" : "dateOptionalTime"
+        }
+      }
+    }
+  }
+}
+'
+//3
+curl -XPUT http://es-admin.xiaoxinyong.com//_template/template_3 -d '
+{
+  "order" : 1,
+  "template": "logstash-cash_loan*",
+  "mappings": {
+    "cash_loan": {
+      "properties": {
+        "date_time" : {
+            "type" : "date",
+            "format" : "dateOptionalTime"
+        },
+        "request_time" : {
+            "type" : "date",
+            "format" : "dateOptionalTime"
+        },
+        "start_time" : {
+            "type" : "date",
+            "format" : "dateOptionalTime"
+        }
+      }
+    }
+  }
+}
+'
+
+
+
+
+curl -XGET http://es-admin.xiaoxinyong.com/_template?pretty
+
+//delete template
+curl -XDELETE http://es-admin.xiaoxinyong.com/_template/template_1
+
+
+//delete index
+curl -XDELETE http://es-admin.xiaoxinyong.com/logstash-es_index_test_time?pretty

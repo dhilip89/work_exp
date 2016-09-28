@@ -1,0 +1,101 @@
+curl -XPOST http://localhost:9200/logstash-es_index_test -d '
+  "mappings":{
+    "es_index_test":{
+      "_all":       { "enabled": false  },
+      "properties":{
+          "@timestamp" : {
+            "type" : "date",
+            "format" : "dateOptionalTime"
+          },
+          "date_time" : {
+            "type" : "date",
+            "format" : "yyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+          },
+          "request_time" : {
+            "type" : "date",
+            "format" : "yyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+          },
+          "time_stamp" : {
+            "type" : "float"
+          }
+      }
+    }
+  }
+'
+
+
+curl -XPOST http://localhost:9200/logstash-es_index_test-YYYY.MM.DD/ -d '
+{
+  "index": {
+    "template": "logstash-es_index_test-YYYY.MM.DD",
+    "mappings":{
+        "es_index_test":{
+          "_all":       { "enabled": false  },
+          "properties":{
+              "@timestamp" : {
+                "type" : "date",
+                "format" : "dateOptionalTime"
+              },
+              "date_time" : {
+                "type" : "date",
+                "format" : "yyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+              },
+              "request_time" : {
+                "type" : "date",
+                "format" : "yyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+              },
+              "time_stamp" : {
+                "type" : "float"
+              }
+          }
+        }
+      }
+   } 
+}
+'
+
+
+curl http://localhost:9200/logstash-es_index_test-yyyy.mm.dd/_mapping?pretty
+
+curl http://localhost:9200/logstash-es_index_test/_mapping?pretty
+
+curl http://localhost:9200/logstash-es_index_test_time-*.*.*/es_index_test_time/_mapping?pretty
+
+curl -XDELETE http://localhost:9200/logstash-es_index_test_time-*.*.*/
+
+curl -XDELETE http://localhost:9200/logstash-es_index_test_time
+
+
+curl -XDELETE http://localhost:9200/logstash-es_index_test_time-2016-06-27?pretty
+
+curl -XGET http://localhost:9200/_template?pretty
+
+
+curl -XGET http://localhost:9200/_template?pretty
+
+curl -XDELETE http://localhost:9200/_template/template_1
+
+
+curl -XPUT http://localhost:9200/_template/template_1 -d '
+{
+  "order" : 1,
+  "template": "logstash-es_index_test_time*",
+  "settings": {
+    "number_of_shards": 1
+  },
+  "mappings": {
+    "es_index_test_time": {
+      "properties": {
+        "date_time" : {
+            "type" : "date",
+            "format" : "dateOptionalTime"
+        },
+        "request_time" : {
+            "type" : "date",
+            "format" : "dateOptionalTime"
+        }
+      }
+    }
+  }
+}
+'

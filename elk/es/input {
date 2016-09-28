@@ -1,0 +1,66 @@
+input {
+        #garen_user_behavior
+        file {
+                type => "es_index_test_time"
+                path => ["/home/elk_log_test/es_index.log"]
+                #close_older => 60
+                start_position => "beginning"
+                tags => ["seaslog", "garen_user_behavior", "show_output_es", "index_pattern_weekly"]
+        }
+
+}
+
+filter {
+    if "garen_user_behavior" in [tags]{
+
+                ruby {
+                        init => "@kname = ['log_level','pid','time_stamp','date_time','content']"
+                        code => "event.append(Hash[@kname.zip(event['message'].split(' | '))])"
+                }
+
+                json {
+                        source => "content"
+                        #target => "content"
+                }
+
+                mutate {
+                        convert => ["time_stamp", "integer"]
+                        remove_field => ["message", "content", "pid"]
+                }
+                #处理时间，加上时区
+                mutate {
+                        split => ["request_time", " "]
+                        split => ["date_time", " "]
+                }
+
+                mutate {
+                        gsub => ["date_time[0]", "[\:]", "-"]
+                }
+                mutate {
+                        join => ["request_time", "T"]
+                        join => ["date_time", "T"]
+                }
+                mutate {
+                        update => { "request_time" => "%{request_time}.000+08:00"}
+                        update => { "date_time" => "%{request_time}000+08:00"}
+                }
+
+
+        }
+}
+
+
+output {
+        if "show_output_es" in [tags]{
+                stdout {
+                        codec => rubydebug
+                }
+
+        }
+        redis {
+                host => "192.168.55.9" #redis server
+                password => "sc_logstash_66"
+                data_type => "list"
+                key => "logstash-redis"
+        }
+}
