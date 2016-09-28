@@ -1,5 +1,9 @@
 ## grunt study
 
+###
+	
+	npm init
+
 ### install grunt
 
 	npm install grunt --save-dev
@@ -8,6 +12,10 @@
 ### install plugin
 
 	npm install --save-dev grunt-contrib-concat grunt-contrib-jshint grunt-contrib-sass grunt-contrib-uglify grunt-contrib-watch grunt-contrib-connect
+	
+	npm install grunt-contrib-cssmin --save-dev
+	npm install grunt-concat-css --save-dev
+	npm install grunt-contrib-sass --save-dev
 	
 ### Gruntfile.js example
 
@@ -77,4 +85,12 @@ module.exports = function(grunt) {
 
 ```
 
+
+## Q&A
+
+### 1.Q:The package grunt@1.0.1 does not satisfy its siblings' peerDependencies requirements!
+
+A:解决方案：
+
+	1.删除grunt及其扩展，然后调换顺序重新安装。
 
