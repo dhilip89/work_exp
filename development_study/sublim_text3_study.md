@@ -212,3 +212,16 @@ ln -s "/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" /Users/ri
 alias subl='/Users/rick/local/sublime/subl'
 
 ```
+
+##sublimt text3 开启失去焦点后自动保存
+```
+{
+    "color_scheme": "Packages/User/SublimeLinter/Monokai (SL).tmTheme",
+    "font_size": 13,
+    "ignored_packages":
+    [
+        "Vintage"
+    ],
+    "save_on_focus_lost": true
+}
+```
