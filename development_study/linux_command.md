@@ -154,3 +154,9 @@ find命令的参数；
 
 > -ok 和-exec相同，只不过在操作前要询用户
 例：find . -name .svn | xargs rm -rf
+
+### 查看Linux内核版本
+```
+cat /etc/issue  //CentOS release 6.4 (Final)
+uname -r //2.6.32-358.6.1.el6.i686
+``` 
