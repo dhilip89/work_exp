@@ -170,3 +170,42 @@ uwsgi --socket 0.0.0.0:8800 --protocol=http -w wsgi
 
 uwsgi --http-socket :9090 --plugin python --wsgi-file app/index.py
 ```
+
+### python uwsgi
+
+```
+/home/www/suiyue/python_3/bin/uwsgi uwsgi.ini
+
+[uwsgi]
+// 开启主线程
+master = true
+
+// 项目目录
+base = /home/www/suiyue/sy_poppy
+
+// 移动到项目目录 cd
+chdir = %(base)
+
+// 本地的ip和端口
+#socket = 127.0.0.1:8001
+socket = :5000
+
+// Python 虚拟环境目录
+home = /home/www/suiyue/python_3
+
+// 程序启动文件
+wsgi-file = manage.py
+
+// 项目中引用 flask 实例的变量名
+callable = app
+
+// 处理器数
+processes = 2
+
+// 线程数
+threads = 4
+
+// 获取uwsgi统计信息的服务地址
+stats = 127.0.0.1:9191
+
+```
