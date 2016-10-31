@@ -160,3 +160,16 @@ find命令的参数；
 cat /etc/issue  //CentOS release 6.4 (Final)
 uname -r //2.6.32-358.6.1.el6.i686
 ``` 
+
+
+## cat uniq
+
+```
+cat words.txt mf.keyword.txt | sort  | uniq -c
+```
+
+反顺序
+
+```
+cat words.txt mf.keyword.txt | sort  -r | uniq -c
+```

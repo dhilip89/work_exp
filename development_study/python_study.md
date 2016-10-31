@@ -11,6 +11,7 @@ sudo apt-get install python-virtualenv
 ./pip install numpy
 ./pip install pandas
 ./pip install psycopg2
+./pip install pyahocorasick ac 关键字匹配
 ```
 
 
@@ -130,7 +131,7 @@ f.close()
 ```
 
 
-##Final 使用技巧：
+##IDE 使用技巧：
 pycharm python 代码格式化： command + alt + l
 
 
