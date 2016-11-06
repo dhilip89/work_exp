@@ -210,3 +210,30 @@ threads = 4
 stats = 127.0.0.1:9191
 
 ```
+
+### 解决UnicodeEncodeError: 'ascii' codec can't encode characters in position 0-11
+
+原因是python2.7在安装时，默认的编码是ascii，当程序中出现非ascii编码时，python的处理常常会报这样的错，不过在python3就不会有这样的问题。
+
+临时解决方法：
+
+```
+代码中加入如下三行
+import sys  
+reload(sys)  
+sys.setdefaultencoding('utf8')  
+```
+
+如果不想在每个文件中都加这三行，就在python的Lib\site-packages文件夹下新建一个sitecustomize.py
+内容如下：
+
+```
+# encoding=utf8  
+import sys  
+
+reload(sys)  
+sys.setdefaultencoding('utf8')  
+```
+这样的话，系统在python启动的时候，自行调用该文件，设置系统的默认编码
+
+
