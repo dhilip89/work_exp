@@ -1,8 +1,24 @@
 ## return 200 json
+```
  /user_behavior {
           default_type application/json;
           return 200 '{"stauts": 0, "msg":"", "data":[]}';
       }
+```
+
+### collect_user_behavior
+```
+    location /user_behavior {
+        default_type application/json;
+        #content_by_lua_block {
+        #    ngx.say("lua redis test")
+        #}
+        content_by_lua_file "lua/collect_user_behavior.lua";
+        #return 200 '{"stauts": 0, "msg":"", "data":[]}';
+    }
+```
+      
+  
       
 ## nginx json_log
 ```
