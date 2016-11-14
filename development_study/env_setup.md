@@ -92,3 +92,10 @@ install pip
 
 ##Final 使用技巧：
 pycharm python 代码格式化： command + alt + l
+
+## mac compile-install php7
+checking for xml2-config path... /usr/bin/xml2-config
+
+```
+./brew install libxml2
+```
