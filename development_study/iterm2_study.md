@@ -111,3 +111,14 @@ iterm2 有 2 种好用的选中即复制模式。
 剪切历史
 
 输入 command+shift+h，iterm2 将自动列出剪切板的历史记录。如果需要将剪切板的历史记录保存到磁盘，在 Preferences > General > Save copy/paste history to disk 中设置。
+
+### Mac 中 Terminal（终端）的快捷键
+```
+Ctrl + A 将光标跳到行头
+Ctrl + E 将光标跳到行尾
+Ctrl + L 清屏
+Ctrl + R 搜索以前执行过的命令
+Ctrl + C 终止正在运行的程序
+Ctrl + D 退出 Terminal（这里建议使用 Command ＋ W 来完成）
+Ctrl + Z 将当前程序放置于背景，可以用 fg 来恢复
+```

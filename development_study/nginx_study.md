@@ -22,7 +22,7 @@
       
 ## nginx json_log
 ```
-log_format  log_json '{ "@timestamp": "$time_local", '
+'{ "@timestamp": "$time_iso8601", '
                          '"@fields": { '
                          '"remote_addr": "$remote_addr", '
                          '"remote_user": "$remote_user", '
@@ -31,6 +31,7 @@ log_format  log_json '{ "@timestamp": "$time_local", '
                          '"status": "$status", '
                          '"request": "$request", '
                          '"request_method": "$request_method", '
+                         '"request_method": "$time_iso8601",'
                          '"http_referrer": "$http_referer", '
                          '"body_bytes_sent":"$body_bytes_sent", '
                          '"http_x_forwarded_for": "$http_x_forwarded_for", '
@@ -38,6 +39,16 @@ log_format  log_json '{ "@timestamp": "$time_local", '
                          '"query_string": "$query_string",'
                          '"http_cookie" : "$http_cookie",'
                          '"http_header" : "$http_header",'
-                         '"request_body": "$request_body"} }';
+                         '"request_body": "$request_body",'
+                         '"geoip_latitude":"$geoip_latitude",'
+                         '"geoip_longitude":"$geoip_longitude",'
+                         '"geoip_country_code":"$geoip_country_code",'
+                         '"geoip_city":"$geoip_city",'
+                         '"geoip_city_country_code":"$geoip_city_country_code",'
+                         '"geoip_city_country_name":"$geoip_city_country_name",'
+                         '"geoip_city_continent_code":"$geoip_city_continent_code",'
+                         '"geoip_country_code3":"$geoip_country_code3",'
+                         '"geoip_city_country_code3":"$geoip_city_country_code3",'
+                         '"geoip_country_name":"$geoip_country_name"} }';
 ```
 
