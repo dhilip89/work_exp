@@ -59,3 +59,8 @@ Example
 	：%s /oradata/apras/ /user01/apras1 （使用 来 替换 / ）： /oradata/apras/替换成/user01/apras1/
 
 	：s/vivian/sky/ 替换当前
+	
+## Vim 使用 regex 將 "," 取代成換行
+```
+:%s/,/\r,/g
+```

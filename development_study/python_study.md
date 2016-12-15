@@ -237,3 +237,35 @@ sys.setdefaultencoding('utf8')
 这样的话，系统在python启动的时候，自行调用该文件，设置系统的默认编码
 
 
+## python install opencv error:
+can't find *.so
+
+```
+ln -n */*s/cv.py path/python/lib/site-package/cv.py
+
+ln -n */*s/cv2.so path/python/lib/site-package/cv.so
+
+```
+## python3.5/bz2.py ImportError: No module named '_bz2
+```
+yum install bzip2 bzip2-devel
+```
+
+## 使用国内镜像源来加速python pypi包的安装
+export PIP_FIND_LINKS="http://mirror1.example.com http://mirror2.example.com"
+
+export PIP_FIND_LINKS="https://pypi.douban.com/simple"
+
+pip install xxx -i https://pypi.douban.com/simple
+
+## ImportError: No module named _tkinter, please install the python-tk package
+
+```
+sudo apt-get install python-tk
+```
+
+## ImportError: dlopen(/Users/rick/homebrew/lib/python2.7/site-packages/essentia/_essentia.so, 2): Library not loaded: /private/tmp/essentia-20161214-27293-1yv8n2u/essentia-2.1_beta3/build/src/libessentia.dylib
+
+```
+ln -s /Users/rick/homebrew/lib/libessentia.dylib /private/tmp/essentia-20161214-27293-1yv8n2u/essentia-2.1_beta3/build/src/libessentia.dylib
+```
