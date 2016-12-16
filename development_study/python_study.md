@@ -269,3 +269,38 @@ sudo apt-get install python-tk
 ```
 ln -s /Users/rick/homebrew/lib/libessentia.dylib /private/tmp/essentia-20161214-27293-1yv8n2u/essentia-2.1_beta3/build/src/libessentia.dylib
 ```
+
+## brew install cartr/qt4/qt
+
+```
+We agreed to the Qt opensource license for you.
+If this is unacceptable you should uninstall.
+
+Qt Designer no longer picks up changes to the QT_PLUGIN_PATH environment
+variable as it was tweaked to search for plug-ins provided by formulae in
+  /Users/rick/homebrew/lib/qt4/plugins
+
+Phonon is not supported on macOS Sierra or with Xcode 8.
+
+.app bundles were installed.
+Run `brew linkapps qt` to symlink these to /Applications.
+```
+
+
+###
+```
+1.Shutdown the VM and quit VirtualBox
+Open the Terminal app and use the following command to navigate to the VirtualBox app directory:
+cd /Applications/VirtualBox.app/Contents/Resources/VirtualBoxVM.app/Contents/MacOS/
+
+2.Now in the proper directory, you’re ready to run the resize command with the following syntax:
+VBoxManage modifyhd --resize [new size in MB] [/path/to/vdi]
+
+3.For example, let’s say there’s a Windows 10 VM VDI file located at /Users/Paul/Documents/VM/Windows10.vdi and we want it to grow from 15GB to 30GB, the syntax would be:
+VBoxManage modifyhd --resize 30000 ~/Documents/VM/Windows10.vdi
+
+4.If desired, verify the change has taken place with the showhdinfo command:
+VBoxManage showhdinfo ~/path/to/vmdrive.vdi
+
+Relaunch VirtualBox and boot your newly resized guest OS
+```
