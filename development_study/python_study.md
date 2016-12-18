@@ -304,3 +304,11 @@ VBoxManage showhdinfo ~/path/to/vmdrive.vdi
 
 Relaunch VirtualBox and boot your newly resized guest OS
 ```
+
+### pythob %matplotlin inline
+```
+ipython qtconsole --matplotlib inline 
+ipython console --matplotlib inline
+ipython notebook --matplotlib inline
+ipython qtconsole --matplotlib inline --ConsoleWidget.font_family="Anonymous Pro" --ConsoleWidget.font_size=9
+```
