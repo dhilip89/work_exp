@@ -155,3 +155,32 @@ sales=# ALTER GROUP sale DROP USER sale2;
 可以使用pg_dump和pg_dumpall来完成。比如备份sales数据库：
 
 pg_dump sales>/home/tk/pgsql/backup/1.bak
+
+
+```
+SELECT * FROM json_test WHERE data ->> 'a' > '1';
+
+
+select extend from "order" where extend ->>'is_reward' = '1';
+
+select id, device_info, request_time_stamp from user_behavior where device_info -> 'platform' is null  order by id desc limit 10
+
+
+//日期过滤
+select count(*) from user_behavior where event_time > '2016-12-22 00:00:00';
+
+select id from user_behavior where event_time > '2016-12-22 00:00:00' order by id asc limit 100;
+
+update user_behavior set event_time = to_timestamp(request_time_stamp) where id in (select id from user_behavior where event_time > '2016-12-22 00:00:00' limit 10);
+
+update user_behavior set event_time = to_timestamp(request_time_stamp) where id in (select id from user_behavior where event_time > '2016-12-22 00:00:00' order by id asc  limit 100);
+ 
+//替换日期
+update user_behavior set event_time = to_timestamp(request_time_stamp) where event_time > '2016-12-22 00:00:00';
+
+//timestamp to date
+SELECT to_timestamp(1195374767);
+
+// 用时间戳替换错误日期
+update user_behavior set event_time = to_timestamp(request_time_stamp) where id = 5346030;
+```

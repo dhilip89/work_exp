@@ -250,5 +250,15 @@ lsof -i:port
 ps -ef | grep 5000
 
 pip install uwsgi
+```
 
+## remove first and last char
+```
+string="|abcdefg|"
+echo ${string:1:-1}
+```
+
+```
+date +"[%Y_%m_%d %H:%M:%S,%3N]"
+cat h5_demo.log | awk '{print $1}' | sed 's/\[//g; s/\]//g
 ```
