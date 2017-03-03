@@ -312,3 +312,35 @@ ipython console --matplotlib inline
 ipython notebook --matplotlib inline
 ipython qtconsole --matplotlib inline --ConsoleWidget.font_family="Anonymous Pro" --ConsoleWidget.font_size=9
 ```
+
+### Centos install python 依懒
+```
+yum install bzip2-devel curses-devel dbm-devel gdbm-devel xz-devel sqlite sqlite-devel openssl openssl-devel tkinter tcl-devel tk-devel readline readline-devel zlib zlib-devel
+```
+
+### python list dir
+```
+file_dir = self.recommend_config['recommend_hot_model_dir']
+        model_files = os.listdir(file_dir)
+        if model_files:
+            model_files.reverse()
+        hot_list = []
+        for kk in model_files:
+            if not kk.startswith(RecommendConfig.WORKS_HOT_MODEL):
+                continue
+
+            with open('%s/%s' % (file_dir, kk)) as f:
+                dict_reader = csv.DictReader(f)
+                for row in dict_reader:
+                    hot_list.append({
+                        'works_id': row['works_id'] if 'works_id' in row else 0,
+                        'rank': row['rank'] if 'rank' in row else 0,
+                    })
+            if len(hot_list) > 100:
+                break
+```
+
+### merge list just like in php
+```
+['it'] + ['was'] + ['annoying']
+```

@@ -184,3 +184,24 @@ SELECT to_timestamp(1195374767);
 // 用时间戳替换错误日期
 update user_behavior set event_time = to_timestamp(request_time_stamp) where id = 5346030;
 ```
+
+
+```
+Instead of comparing dates using `DATE_TRUNC` you should probably just use between instead.
+
+ 
+
+For example, instead of this:
+
+SELECT some_timestamp
+FROM some_table
+WHERE DATE_TRUNC('day', some_timestamp) = '2015-06-23'::timestamp
+Use this:
+
+SELECT some_timestamp
+FROM some_table
+WHERE some_timestamp BETWEEN '2015-06-23'::timestamp AND '2015-06-23'::timestamp + '1 days'::interval
+```
+
+
+SELECT * FROM pg_locks pl LEFT JOIN pg_stat_activity psa ON pl.pid = psa.pid;
