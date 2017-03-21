@@ -67,3 +67,20 @@ index=behavior source=suiyue_behavior sourcetype=suiyue_behavior platform=androi
 
 index=behavior source=suiyue_behavior sourcetype=suiyue_behavior platform=android AND (channel=yingyongbao1 OR channel= yingyongbaofufei1 OR channel= chuanbo1) | fields behavior_event udid platform |stats count by udid  | sort -count | rename count as "活跃度" |table *
 ```
+
+
+### test
+```
+| savedsearch "tbl_suiyuedb_user_relation" relation_type=1 | top 100 to_user_id | join type=left to_user_id [| savedsearch "tbl_suiyuedb_user" | rename id as to_user_id | table to_user_id, nickname] | table to_user_id, nickname, count, percent | rename count as 粉丝数, nickname as 用户名称, to_user_id as 用户id, percent as 占比
+
+
+| savedsearch "tbl_suiyuedb_user" | rename id as to_user_id | table to_user_id, nickname | join type=left to_user_id [| savedsearch "tbl_suiyuedb_user_relation" relation_type=1 | top 100 to_user_id] | table to_user_id, nickname, count, percent | rename count as 粉丝数, nickname as 用户名称, to_user_id as 用户id, percent as 占比
+
+
+-------
+碎乐单
+| savedsearch "tbl_suiyuedb_user"  | rename id as user_id | table user_id, nickname| join user_id  [| savedsearch "tbl_suiyuedb_play_list" | top 100 user_id | table user_id count percent] | sort -count|rename count as 碎乐单, nickname as 用户名称, user_id as 用户id, percent as 占比
+
+粉丝数
+| savedsearch "tbl_suiyuedb_user"  | rename id as user_id | table user_id, nickname| join user_id  [| savedsearch "tbl_suiyuedb_user_relation"  | top 100 to_user_id |rename to_user_id as user_id |table user_id count percent] | sort -count|rename count as 粉丝数, nickname as 用户名称, user_id as 用户id, percent as 占比
+```
