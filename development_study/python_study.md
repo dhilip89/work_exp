@@ -236,4 +236,16 @@ sys.setdefaultencoding('utf8')
 ```
 这样的话，系统在python启动的时候，自行调用该文件，设置系统的默认编码
 
+## brew install essestia
+```
+You can install these using
+   pip install ipython matplotlib
+   Or using the installation method you prefer.
 
+   Python modules have been installed and Homebrew's site-packages is not
+   in your Python sys.path, so you will not be able to import the modules
+   this formula installed. If you plan to develop with these modules,
+   please run:
+     mkdir -p /Users/rick/Library/Python/2.7/lib/python/site-packages
+       echo 'import site; site.addsitedir("/Users/rick/homebrew/lib/python2.7/site-packages")' >> /Users/rick/Library/Python/2.7/lib/python/site-packages/homebrew.pth
+```
