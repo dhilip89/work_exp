@@ -84,3 +84,19 @@ index=behavior source=suiyue_behavior sourcetype=suiyue_behavior platform=androi
 粉丝数
 | savedsearch "tbl_suiyuedb_user"  | rename id as user_id | table user_id, nickname| join user_id  [| savedsearch "tbl_suiyuedb_user_relation"  | top 100 to_user_id |rename to_user_id as user_id |table user_id count percent] | sort -count|rename count as 粉丝数, nickname as 用户名称, user_id as 用户id, percent as 占比
 ```
+
+
+###审核作品数
+
+```
+|dbxquery query="select count(*) as dc, date_trunc('day', create_time::TIMESTAMP without time zone) as ts from works where status=2 group by ts order by ts" connection="suiyue_db" shortnames="yes" | eval _time=strptime(ts,"%Y-%m-%d %H:%M:%S") | eval weeknumber= tonumber(strftime(_time,"%U"))+1,monthnumber=strftime(_time,"%m"),yearnumber=strftime(_time,"%Y") | timechart span=1d values(dc) as 审核通过作品数
+```
+
+```
+
+1.index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event= subscribe_channel_on_entry | rex "behavior_info=\"(?<behavior_info>.+)\", geo_info=" | fields behavior_info | eval _raw=behavior_info | spath input=behavior_info | rename item_id as channel_id | stats count by channel_id | join type=left channel_id [| savedsearch "tbl_suiyuedb_channel" | rename id as channel_id | table channel_id,name] | table name channel_id count| sort -count |rename count as 浏览数, channel_id as 频道id, name as 频道名称
+
+2.index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event= subscribe_btn_on_click | rex "behavior_info=\"(?<behavior_info>.+)\", geo_info=" | fields behavior_info | eval _raw=behavior_info | spath input=behavior_info | rename item_id as channel_id | stats count by channel_id | join type=left channel_id [| savedsearch "tbl_suiyuedb_channel" | rename id as channel_id | table channel_id,name] | table name channel_id count| sort -count |rename count as 点击数, channel_id as 频道id, name as 频道名称
+
+3.index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event= guess_like_on_click | rex "behavior_info=\"(?<behavior_info>.+)\", geo_info=" | fields behavior_info | eval _raw=behavior_info | spath input=behavior_info | rename item_id as works_id | stats count by works_id | join works_id [| savedsearch "snap_suiyuedb_works_dbxquery" | rename id as works_id | table works_id,title] | table title works_id count| sort -count |rename count as 浏览数, works_id as 作品id, title as 作品名称
+```
