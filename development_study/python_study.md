@@ -242,6 +242,7 @@ You can install these using
    pip install ipython matplotlib
    Or using the installation method you prefer.
 
+<<<<<<< HEAD
    Python modules have been installed and Homebrew's site-packages is not
    in your Python sys.path, so you will not be able to import the modules
    this formula installed. If you plan to develop with these modules,
@@ -249,3 +250,112 @@ You can install these using
      mkdir -p /Users/rick/Library/Python/2.7/lib/python/site-packages
        echo 'import site; site.addsitedir("/Users/rick/homebrew/lib/python2.7/site-packages")' >> /Users/rick/Library/Python/2.7/lib/python/site-packages/homebrew.pth
 ```
+=======
+## python install opencv error:
+can't find *.so
+
+```
+ln -n */*s/cv.py path/python/lib/site-package/cv.py
+
+ln -n */*s/cv2.so path/python/lib/site-package/cv.so
+
+```
+## python3.5/bz2.py ImportError: No module named '_bz2
+```
+yum install bzip2 bzip2-devel
+```
+
+## 使用国内镜像源来加速python pypi包的安装
+export PIP_FIND_LINKS="http://mirror1.example.com http://mirror2.example.com"
+
+export PIP_FIND_LINKS="https://pypi.douban.com/simple"
+
+pip install xxx -i https://pypi.douban.com/simple
+
+## ImportError: No module named _tkinter, please install the python-tk package
+
+```
+sudo apt-get install python-tk
+```
+
+## ImportError: dlopen(/Users/rick/homebrew/lib/python2.7/site-packages/essentia/_essentia.so, 2): Library not loaded: /private/tmp/essentia-20161214-27293-1yv8n2u/essentia-2.1_beta3/build/src/libessentia.dylib
+
+```
+ln -s /Users/rick/homebrew/lib/libessentia.dylib /private/tmp/essentia-20161214-27293-1yv8n2u/essentia-2.1_beta3/build/src/libessentia.dylib
+```
+
+## brew install cartr/qt4/qt
+
+```
+We agreed to the Qt opensource license for you.
+If this is unacceptable you should uninstall.
+
+Qt Designer no longer picks up changes to the QT_PLUGIN_PATH environment
+variable as it was tweaked to search for plug-ins provided by formulae in
+  /Users/rick/homebrew/lib/qt4/plugins
+
+Phonon is not supported on macOS Sierra or with Xcode 8.
+
+.app bundles were installed.
+Run `brew linkapps qt` to symlink these to /Applications.
+```
+
+
+###
+```
+1.Shutdown the VM and quit VirtualBox
+Open the Terminal app and use the following command to navigate to the VirtualBox app directory:
+cd /Applications/VirtualBox.app/Contents/Resources/VirtualBoxVM.app/Contents/MacOS/
+
+2.Now in the proper directory, you’re ready to run the resize command with the following syntax:
+VBoxManage modifyhd --resize [new size in MB] [/path/to/vdi]
+
+3.For example, let’s say there’s a Windows 10 VM VDI file located at /Users/Paul/Documents/VM/Windows10.vdi and we want it to grow from 15GB to 30GB, the syntax would be:
+VBoxManage modifyhd --resize 30000 ~/Documents/VM/Windows10.vdi
+
+4.If desired, verify the change has taken place with the showhdinfo command:
+VBoxManage showhdinfo ~/path/to/vmdrive.vdi
+
+Relaunch VirtualBox and boot your newly resized guest OS
+```
+
+### pythob %matplotlin inline
+```
+ipython qtconsole --matplotlib inline 
+ipython console --matplotlib inline
+ipython notebook --matplotlib inline
+ipython qtconsole --matplotlib inline --ConsoleWidget.font_family="Anonymous Pro" --ConsoleWidget.font_size=9
+```
+
+### Centos install python 依懒
+```
+yum install bzip2-devel curses-devel dbm-devel gdbm-devel xz-devel sqlite sqlite-devel openssl openssl-devel tkinter tcl-devel tk-devel readline readline-devel zlib zlib-devel
+```
+
+### python list dir
+```
+file_dir = self.recommend_config['recommend_hot_model_dir']
+        model_files = os.listdir(file_dir)
+        if model_files:
+            model_files.reverse()
+        hot_list = []
+        for kk in model_files:
+            if not kk.startswith(RecommendConfig.WORKS_HOT_MODEL):
+                continue
+
+            with open('%s/%s' % (file_dir, kk)) as f:
+                dict_reader = csv.DictReader(f)
+                for row in dict_reader:
+                    hot_list.append({
+                        'works_id': row['works_id'] if 'works_id' in row else 0,
+                        'rank': row['rank'] if 'rank' in row else 0,
+                    })
+            if len(hot_list) > 100:
+                break
+```
+
+### merge list just like in php
+```
+['it'] + ['was'] + ['annoying']
+```
+>>>>>>> 6ee120ef3c115209d2b74c76ebe076b43fe1eb29
