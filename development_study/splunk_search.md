@@ -99,4 +99,39 @@ index=behavior source=suiyue_behavior sourcetype=suiyue_behavior platform=androi
 2.index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event= subscribe_btn_on_click | rex "behavior_info=\"(?<behavior_info>.+)\", geo_info=" | fields behavior_info | eval _raw=behavior_info | spath input=behavior_info | rename item_id as channel_id | stats count by channel_id | join type=left channel_id [| savedsearch "tbl_suiyuedb_channel" | rename id as channel_id | table channel_id,name] | table name channel_id count| sort -count |rename count as 点击数, channel_id as 频道id, name as 频道名称
 
 3.index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event= guess_like_on_click | rex "behavior_info=\"(?<behavior_info>.+)\", geo_info=" | fields behavior_info | eval _raw=behavior_info | spath input=behavior_info | rename item_id as works_id | stats count by works_id | join works_id [| savedsearch "snap_suiyuedb_works_dbxquery" | rename id as works_id | table works_id,title] | table title works_id count| sort -count |rename count as 浏览数, works_id as 作品id, title as 作品名称
+
+4.index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event= subscribe_channel_on_entry | rex "behavior_info=\"(?<behavior_info>.+)\", geo_info=" | fields behavior_info | eval _raw=behavior_info | spath input=behavior_info | rename item_id as channel_id | stats count by channel_id | join type=left channel_id [| savedsearch "tbl_suiyuedb_channel_dbxquery" | rename id as channel_id | table channel_id,name] | table name channel_id count| sort -count | rename count as 点击数, channel_id as 频道id, name as 频道名称
+```
+
+### 根据版本号，时间，查数据
+```
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=feed_on_entry referer != "" |rex "device_info=\"(?<device_info>.+)\", behavior_info=" | fields device_info, referer | eval json_data=device_info | spath input=json_data  | where appv=172  |eval feed_type=case(
+referer == "feed/comment", "乐评",
+referer == "feed/hot", "精选",
+referer == "feed/listen_top", "收听榜",
+referer == "feed/new", "最新",
+referer == "feed/question", "问答",
+referer == "feed/ranklist", "榜单",
+referer == "feed/ranklist-new", "新榜单",
+referer == "feed/recommend", "推荐",
+referer == "feed/sale", "销量榜",
+referer == "feed/star", "明星",
+referer == "feed/topic", "话题") | timechart span=1d count by feed_type
+```
+
+```
+SELECT create_time::TIMESTAMP without time zone as ts, * FROM "node_music_weapon"."public"."works_playtimes"
+
+
+|dbxquery query="select count(*) as dc, date_trunc('day', create_time::TIMESTAMP without time zone) as ts from works_playtimes group by ts order by ts" connection="suiyue_db" shortnames="yes" | eval _time=strptime(ts,"%Y-%m-%d %H:%M:%S") | eval weeknumber= tonumber(strftime(_time,"%U"))+1,monthnumber=strftime(_time,"%m"),yearnumber=strftime(_time,"%Y") | timechart span=1d values(dc) as 每日播放量
+```
+
+### 每日作品收听报表
+```
+| savedsearch "tbl_suiyuedb_play_times" | top 200 works_id | rename count as listen_num | join type=outer works_id [search index="suiyuedb"  sourcetype="suiyuedb_works" earliest=-5y latest=now | rename id as works_id | table works_id,title] | table works_id title listen_num | rename works_id as 作品id, title as 作品名称, listen_num as 试听次数
+```
+
+### 每日搜索热词报表
+```
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event= search_on_display | rex "behavior_info=\"(?<behavior_info>.+)\", geo_info=" | fields behavior_info | eval _raw=behavior_info | spath input=behavior_info | where event_result=1 | stats count by item | sort -count | head 300 | rename item as 搜索词语, count as 搜索次数
 ```

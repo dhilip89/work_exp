@@ -421,3 +421,12 @@ ls | awk '{a=sprintf("waon -i \"%s\" -o \"/Users/rick/work_space/sy_data/music_d
 --version ，-V 版本信息
 ```
 
+
+### Linux查看磁盘空间（df, du）
+```
+df -h
+du -sh foo
+du -sh *
+```
+
+
