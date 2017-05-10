@@ -43,7 +43,7 @@ index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=
 | eval first_ratio = first_sum/zero_sum*100, second_raio=second_sum/zero_sum*100
 ```
 
-
+```
 convert mktime(_time) AS ms_time | table ms_time
 
 | convert mktime(_time) AS s_time | where s_time > 1484236800 and s_time < 1484323199| table _time
@@ -54,7 +54,7 @@ convert timeformat='%Y-%m-%d' mktime('2017-01-13') AS ms_time | table ms_time
 
 index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=app_on_open platform="ios" | dedup 1 channel udid | fields udid  | convert mktime(_time) AS s_time | where s_time >= 1484236800 and s_time <= 1484323199 | table _time
 
-
+```
 
 ```
 source="/Users/rick/service/splunk/splunk_data/feed/last_rank_listen_count.csv" host="ricks-MacBook-Pro.local" index="last_rank_listen_count" sourcetype="csv" earliest=-3h latest=-2h | join works_id [ | search source="/Users/rick/service/splunk/splunk_data/feed/last_rank_listen_count.csv" host="ricks-MacBook-Pro.local" index="last_rank_listen_count" sourcetype="csv" earliest=-2h latest=-h | eval listen_count=play_num | table works_id listen_count] 
@@ -134,4 +134,22 @@ SELECT create_time::TIMESTAMP without time zone as ts, * FROM "node_music_weapon
 ### 每日搜索热词报表
 ```
 index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event= search_on_display | rex "behavior_info=\"(?<behavior_info>.+)\", geo_info=" | fields behavior_info | eval _raw=behavior_info | spath input=behavior_info | where event_result=1 | stats count by item | sort -count | head 300 | rename item as 搜索词语, count as 搜索次数
+```
+
+####
+```
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event= feed_on_out | 
+eval feed_type=case( 
+referer == "feed/comment",
+ "乐评", referer == "feed/hot", 
+ "精选", referer == "feed/listen_top", 
+ "收听榜", referer == "feed/new", 
+ "最新", referer == "feed/question", 
+ "问答", referer == "feed/ranklist", 
+ "榜单", referer == "feed/ranklist-new", 
+ "新榜单", referer == "feed/recommend", 
+ "推荐", referer == "feed/sale", 
+ "销量榜", referer == "feed/star", 
+ "明星", referer == "feed/topic", 
+ "话题") | timechart span=1d c(udid) as feed_count by feed_type
 ```
