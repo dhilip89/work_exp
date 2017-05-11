@@ -153,3 +153,56 @@ referer == "feed/comment",
  "明星", referer == "feed/topic", 
  "话题") | timechart span=1d c(udid) as feed_count by feed_type
 ```
+
+### null 过滤
+```
+| savedsearch "tbl_subscribe_channel" | where isnotnull(order_no) | `apply_timerange(_time)` | eval statusname=case( status == 0, "取消订阅", status == 1, "订阅")  | timechart span=1d count by statusname
+```
+
+### feed uv pv
+```
+uv:
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event= feed_on_out | timechart span=1d dc(udid) by referer 
+| rename feed/comment as 乐评, feed/follow as 关注, feed/hot as 推荐, feed/hot_question as 最热问答, feed/music_talk as 乐谈, feed/new as 最新, feed/hot_recommend as 热评, feed/question as 问答, feed/topic as 话题, feed/recommend as 乐评2
+
+pv:
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event= feed_on_out | timechart span=1d count by referer 
+| rename feed/comment as 乐评, feed/follow as 关注, feed/hot as 推荐, feed/hot_question as 最热问答, feed/music_talk as 乐谈, feed/new as 最新, feed/hot_recommend as 热评, feed/question as 问答, feed/topic as 话题, feed/recommend as 乐评2
+```
+
+### 添加关注音乐人加载数页数报表
+```
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event= follow_btn_on_click | where referer="musician" | rex "behavior_info=\"(?<behavior_info>.+)\", geo_info=" | fields behavior_info, udid | eval behavior=behavior_info | spath input=behavior| where page <= 10 | timechart span=1d count by page | rename 1 as 1页, 2 as 2页, 3 as 3页, 4 as 4页, 5 as 5页, 6 as 6页, 7 as 7页, 8 as 8页, 9 as 9页, 10 as 10页数
+```
+
+### 开屏广告页统计
+```
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event= launch_graph_on_click | rex "behavior_info=\"(?<behavior_info>.+)\", geo_info=" | fields behavior_info, udid | eval behavior=behavior_info | spath input=behavior| timechart span=1d count by event_result | rename 0 as 默认, 1 as 进入, 2 as 跳过
+```
+
+
+### 首叶入口统计
+```
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=home_sub_on_entry | timechart span=1d count by referer | addtotals |rename me as 我, upload as 上传, search as 搜索, player as 播放器, Total as 总量
+```
+
+### 频道统计
+```
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event= subscribe_channel_on_entry | timechart span=1d count by referer | addtotals | rename channel_all as 全部频道, channel_apply as 频道申请, channel_entry as 进入频道, channel_me as 我的频道, channel_subscribed as 已定阅频道, Total as 总量
+```
+
+### 作品下载数统计
+```
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event= works_download_on_start | rex "behavior_info=\"(?<behavior_info>.+)\", geo_info=" | fields behavior_info, udid | eval behavior=behavior_info | spath input=behavior| stats count by item_id | sort -count | join type=outer item_id [search index="suiyuedb"  sourcetype="suiyuedb_works" earliest=-5y latest=now | rename id as item_id | table item_id,title] | rename item_id as 作品id, count as 下载数, title as 作品名称
+```
+
+### display_position
+```
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=works_detail_on_entry platform=android referer=feed/hot| rex "behavior_info=\"(?<behavior_info>.+)\", geo_info=" | fields behavior_info, udid, referer | eval behavior=behavior_info | spath input=behavior|stats count by display_position | where display_position < 60 AND display_position > 0 | rename display_position as position
+```
+
+### 位置转化率
+```
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=works_detail_on_entry platform=android referer=feed/hot| rex "behavior_info=\"(?<behavior_info>.+)\", geo_info=" | fields behavior_info, udid, referer | eval behavior=behavior_info | spath input=behavior|stats count by display_position | where display_position < 60 AND display_position > 0 | sort display_position|rename display_position as position 
+| eval load_num=[|search index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=feed_on_out referer=feed/hot | rex "behavior_info=\"(?<behavior_info>.+)\", geo_info=" | fields behavior_info, udid, referer | eval behavior=behavior_info | spath input=behavior |  stats sum(page) as page_num | return $page_num] * 20 | eval ratio=count/load_num | rename position as 作品位置, count as 进入次数, load_num as 加载作品数, ratio as 转化率
+```
