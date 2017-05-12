@@ -420,4 +420,13 @@ ls | awk '{a=sprintf("waon -i \"%s\" -o \"/Users/rick/work_space/sy_data/music_d
 --help ，-h 帮助 
 --version ，-V 版本信息
 ```
-
+### 按节点名称删除文件
+````
+ls -i | grep '(1)' | awk '{print $1}' > del.txt 
+del=$(cat del.txt)
+for x in $del 
+do 
+	cc='find . -inum' $x '-print -exec rm -rf {} \;'
+	$($cc)
+done
+```
