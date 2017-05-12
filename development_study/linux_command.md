@@ -420,6 +420,7 @@ ls | awk '{a=sprintf("waon -i \"%s\" -o \"/Users/rick/work_space/sy_data/music_d
 --help ，-h 帮助 
 --version ，-V 版本信息
 ```
+
 ### 按节点名称删除文件
 ````
 ls -i | grep '(1)' | awk '{print $1}' > del.txt 
@@ -430,3 +431,14 @@ do
 	$($cc)
 done
 ```
+
+
+### Linux查看磁盘空间（df, du）
+```
+df -h
+du -sh foo
+du -sh *
+```
+
+
+>>>>>>> 73cdf01d7021ffa18f7edaa4acaf09047a8150dd
