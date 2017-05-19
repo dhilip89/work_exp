@@ -203,5 +203,25 @@ index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=
 
 ### 位置转化率
 ```
-index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=works_detail_on_entry referer=feed/hot| rex "behavior_info=\"(?<behavior_info>.+)\", geo_info=" | fields behavior_info, udid, referer | eval behavior=behavior_info | spath input=behavior|stats count by display_position | where display_position < 60 AND display_position > 0 | sort display_position|rename display_position as position  | eval load_num=[|search index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=feed_on_out referer=feed/hot | rex "behavior_info=\"(?<behavior_info>.+)\", geo_info=" | fields behavior_info, udid, referer | eval behavior=behavior_info | spath input=behavior |  stats sum(page) as page_num | eval page_num=page_num*20 | return $page_num] | eval ratio=count/load_num | rename position as 作品位置, count as 进入次数, load_num as 加载作品数, ratio as 转化率
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=works_detail_on_entry referer=feed/music_talk| rex "behavior_info=\"(?<behavior_info>.+)\", geo_info=" | fields behavior_info, udid, referer | eval behavior=behavior_info | spath input=behavior|stats count by display_position | where display_position < 60 AND display_position > 0 | sort display_position|rename display_position as position  |eval load_num=[|search index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=feed_on_out referer=feed/music_talk| rex "behavior_info=\"(?<behavior_info>.+)\", geo_info=" | fields behavior_info, udid, referer | eval behavior=behavior_info | spath input=behavior |  stats sum(page) as page_num | eval page_num=page_num*20 | return $page_num] | eval ratio=count/load_num | rename position as 卡片位置, count as 进入次数, load_num as 加载卡片数, ratio as 转化率
+```
+
+### 用户增长预测
+```
+source="suiyue_mta" | sort -ts | head 1 | rex mode=sed "s/\r?\n/--BREAKER--/g" | eval raw_lines=split(_raw, "--BREAKER--") | mvexpand raw_lines | fields raw_lines | eval _raw=raw_lines | spath input=_raw path=data.ret_data{} output=daily | rename data.ret_data.* as * | fields daily | eval _raw=daily | mvexpand daily | eval _raw=daily | spath | eval _time=strptime(date,"%Y-%m-%d") | timechart span=1d sum(ActiveUser) as DAU | predict DAU as Predict algorithm=LLP5 upper90=high lower97=low future_timespan=60 holdback=0 | eval Predict=round(Predict,0)
+```
+
+### Mobile Apps: What’s A Good Retention Rate?
+	http://info.localytics.com/blog/mobile-apps-whats-a-good-retention-rate
+	
+	
+### 时间转换
+```
+|stats count | addinfo | eval earliest=relative_time(info_max_time,"-7d@d") | eval latest=relative_time(info_max_time,"-1d@d") | eval next_time=relative_time("-1d@d","-7d@d") | convert ctime(info_max_time) as info_max_time, ctime(info_min_time) as info_min_time , ctime(earliest) ctime(latest)
+```
+
+
+### 导入imei号
+```
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=app_on_close platform=android |rex "device_info=\"(?<device_info>.+)\", geo_info=" | fields device_info | eval _raw=device_info | spath input=device_info | table imei | stats count by imei |sort -count
 ```
