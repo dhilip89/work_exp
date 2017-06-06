@@ -225,3 +225,8 @@ source="suiyue_mta" | sort -ts | head 1 | rex mode=sed "s/\r?\n/--BREAKER--/g" |
 ```
 index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=app_on_close platform=android |rex "device_info=\"(?<device_info>.+)\", geo_info=" | fields device_info | eval _raw=device_info | spath input=device_info | table imei | stats count by imei |sort -count
 ```
+
+### 查看作品收藏用户udid
+```
+|dbxquery query="select l.works_id, l.user_id, l.create_time from works_like as l where works_id=80170" connection="suiyue_db" shortnames="true" | eval _time=strptime(ts,"%Y-%m-%d %H:%M:%S") |eval weeknumber= tonumber(strftime(_time,"%U"))+1,monthnumber=strftime(_time,"%m"),yearnumber=strftime(_time,"%Y") | table works_id, user_id, create_time |join type=outer user_id [search index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=app_on_close |where isnotnull(udid)| table user_id udid]
+```
