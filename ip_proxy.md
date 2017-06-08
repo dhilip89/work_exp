@@ -15,6 +15,9 @@ http://31f.cn/
 http://ip.qiaodm.com/free/index.html
 http://proxylist.hidemyass.com/
 http://ipaddress.com/proxy-list/
+
+http://proxylist.hidemyass.com/1
+http://cn-proxy.com/
 ```
 
 ### 代理数据有图片
