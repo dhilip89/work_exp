@@ -1,3 +1,9 @@
+## EChart for Spluck
+````
+https://github.com/gangtao/echarts_for_splunk/tree/v1.0
+http://zkread.com/article/1317716.html
+```
+
 ## Splunk Search
 ```
 index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=app_on_open | fields channel udid |dedup 1 channel udid | timechart span=1d count by channel
