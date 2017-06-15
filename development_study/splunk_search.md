@@ -236,3 +236,13 @@ index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=
 ```
 |dbxquery query="select l.works_id, l.user_id, l.create_time from works_like as l where works_id=80170" connection="suiyue_db" shortnames="true" | eval _time=strptime(ts,"%Y-%m-%d %H:%M:%S") |eval weeknumber= tonumber(strftime(_time,"%U"))+1,monthnumber=strftime(_time,"%m"),yearnumber=strftime(_time,"%Y") | table works_id, user_id, create_time |join type=outer user_id [search index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=app_on_close |where isnotnull(udid)| table user_id udid]
 ```
+
+
+## for bakup
+```
+source="/opt/splunk/etc/apps/suiyue_bi/test_bi/splunk_report_test.csv" host="iZ25dk22zoxZ" index="splunk_report_test" sourcetype="splunk_report_test" | table _time
+
+
+source="/opt/splunk/etc/apps/suiyue_bi/h5_bi/h5_dau.csv" host="iZ25dk22zoxZ" index="h5_dau_index" sourcetype="h5_dau.csv" | fields pv uv vv iv | timechart span=1d values(pv) as 浏览数 values(uv) as 独立访客 values(vv) as 访问次数 values(iv) as 访问IP
+
+```
