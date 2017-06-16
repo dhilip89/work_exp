@@ -253,4 +253,14 @@ index="suiyuedb"  sourcetype="suiyuedb_subscribe_channel" | eval weeknumber= ton
 
 |dbxquery query="select count(*) as dc, date_trunc('day', create_time::TIMESTAMP without time zone) as ts from works_comment group by ts order by ts" connection="suiyue_db" shortnames="yes" | eval _time=strptime(ts,"%Y-%m-%d %H:%M:%S") | eval weeknumber= tonumber(strftime(_time,"%U"))+1,monthnumber=strftime(_time,"%m"),yearnumber=strftime(_time,"%Y") | timechart span=1d values(dc) as 每日评论量
 
+
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=feed_on_entry feed/user_event earliest=-6d latest=@d| timechart span=1d count(id) as pv,dc(udid) AS uv|eval day_time=strftime(_time, "%Y-%m-%d %H:%M")
+
+
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=feed_on_entry feed/user_event earliest=-1d latest=@d| timechart span=1d count(id) as pv,dc(udid) AS uv|eval day_time=strftime(_time, "%Y-%m-%d %H:%M:%S") |dbxoutput output="suiyue_report_pv_test"
+
+SELECT to_timestamp(create_time) as ts, event_time, create_time, request_time_stamp FROM "node_music_bi"."public"."user_behavior"
+
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=feed_on_entry feed/user_event earliest=-1d latest=@d| timechart span=1d count(id) as pv,dc(udid) AS uv|eval day_time=_time |eval report_type=1 |dbxoutput output="suiyue_report_pv"
+
 ```
