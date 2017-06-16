@@ -245,4 +245,12 @@ source="/opt/splunk/etc/apps/suiyue_bi/test_bi/splunk_report_test.csv" host="iZ2
 
 source="/opt/splunk/etc/apps/suiyue_bi/h5_bi/h5_dau.csv" host="iZ25dk22zoxZ" index="h5_dau_index" sourcetype="h5_dau.csv" | fields pv uv vv iv | timechart span=1d values(pv) as 浏览数 values(uv) as 独立访客 values(vv) as 访问次数 values(iv) as 访问IP
 
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event= user_event_on_edit | timechart span=1d count(id) as PV,dc(udid) AS UV
+
+
+index="suiyuedb"  sourcetype="suiyuedb_subscribe_channel" | eval weeknumber= tonumber(strftime(_time,"%U"))+1,monthnumber=strftime(_time,"%m"),yearnumber=strftime(_time,"%Y")
+
+
+|dbxquery query="select count(*) as dc, date_trunc('day', create_time::TIMESTAMP without time zone) as ts from works_comment group by ts order by ts" connection="suiyue_db" shortnames="yes" | eval _time=strptime(ts,"%Y-%m-%d %H:%M:%S") | eval weeknumber= tonumber(strftime(_time,"%U"))+1,monthnumber=strftime(_time,"%m"),yearnumber=strftime(_time,"%Y") | timechart span=1d values(dc) as 每日评论量
+
 ```
