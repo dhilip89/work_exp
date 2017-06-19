@@ -263,4 +263,6 @@ SELECT to_timestamp(create_time) as ts, event_time, create_time, request_time_st
 
 index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=feed_on_entry feed/user_event earliest=-1d latest=@d| timechart span=1d count(id) as pv,dc(udid) AS uv|eval day_time=_time |eval report_type=1 |dbxoutput output="suiyue_report_pv"
 
+SELECT to_timestamp(day_time) as ts, * FROM "node_music_bi"."public"."sy_report_pv_uv";
+
 ```
