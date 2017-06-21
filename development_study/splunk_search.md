@@ -238,7 +238,7 @@ index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=
 ```
 
 
-## for bakup
+## for backup
 ```
 source="/opt/splunk/etc/apps/suiyue_bi/test_bi/splunk_report_test.csv" host="iZ25dk22zoxZ" index="splunk_report_test" sourcetype="splunk_report_test" | table _time
 
@@ -264,5 +264,12 @@ SELECT to_timestamp(create_time) as ts, event_time, create_time, request_time_st
 index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=feed_on_entry feed/user_event earliest=-1d latest=@d| timechart span=1d count(id) as pv,dc(udid) AS uv|eval day_time=_time |eval report_type=1 |dbxoutput output="suiyue_report_pv"
 
 SELECT to_timestamp(day_time) as ts, * FROM "node_music_bi"."public"."sy_report_pv_uv";
+
+
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event= user_event_on_edit | timechart span=1d count(id) as PV,dc(udid) AS UV | sort -_time
+
+index=suiyuedb source=/opt/splunk/var/log/splunk/dbx2.log sourcetype=suiyuedb_user_event_comment | timechart span=1d count as 评论数,dc(user_id) as 评论人数,dc(user_event_id) as 被评论的动态数| sort -_time
+
+index=ix_suiyuebi source=/opt/splunk/var/log/splunk/dbx2.log sourcetype=db_event_like status=1 | timechart span=1d count as 点赞数,dc(user_id) as 点赞用户数,dc(dest_id) as 被点赞动态数 | sort -_time
 
 ```
