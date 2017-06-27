@@ -2,6 +2,10 @@
 ````
 https://github.com/gangtao/echarts_for_splunk/tree/v1.0
 http://zkread.com/article/1317716.html
+
+source="drinks.csv" host="ricks-MacBook-Pro.local" sourcetype="echart_drink.csv" | table country, wine_servings,  beer_servings, spirit_servings,total_litres_of_pure_alcohol 
+  | head 5
+  
 ```
 
 ## Splunk Search
@@ -277,6 +281,9 @@ index=suiyuedb source=/opt/splunk/var/log/splunk/dbx2.log sourcetype=suiyuedb_wo
 
 <!--获取设备版本号-->
 index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=device_on_activate OR behavior_event=device_on_active channel=yunos1  | fields platform channel udid |rex "device_info=\"(?<device_info>.+)\", geo_info=" | fields device_info| eval dd=device_info | spath input=dd | table *
+
+<!--获取imei号-->
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=app_on_close | fields platform channel udid |rex "device_info=\"(?<device_info>.+)\", geo_info=" | fields device_info| eval dd=device_info | spath input=dd | where imei!="" | dedup 1 imei | table imei
 
 <!--点赞数-->
 index=ix_suiyuebi source=/opt/splunk/var/log/splunk/dbx2.log sourcetype=db_event_like status=1 | timechart span=1d count as 点赞数,dc(user_id) as 点赞用户数,dc(dest_id) as 被点赞动态数 | sort -_time
