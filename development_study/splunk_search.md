@@ -272,4 +272,19 @@ index=suiyuedb source=/opt/splunk/var/log/splunk/dbx2.log sourcetype=suiyuedb_us
 
 index=ix_suiyuebi source=/opt/splunk/var/log/splunk/dbx2.log sourcetype=db_event_like status=1 | timechart span=1d count as 点赞数,dc(user_id) as 点赞用户数,dc(dest_id) as 被点赞动态数 | sort -_time
 
+<!--获取作品信息及点赞评论数-->
+index=suiyuedb source=/opt/splunk/var/log/splunk/dbx2.log sourcetype=suiyuedb_works earliest=-1d@d latest=@d| table ts,id,title | rename id as works_id | sort ts  |  join type=outer works_id [search index=ix_suiyuebi source=/opt/splunk/var/log/splunk/dbx2.log sourcetype=db_works_comment status=0 earliest=-1d@d| stats count as cnt_comment by works_id] | join type=outer works_id [search index=ix_suiyuebi source=/opt/splunk/var/log/splunk/dbx2.log sourcetype=db_works_like  earliest=-1d@d| eval cnt_like=case(status==1,1) | eval cnt_unlike=case(status==0,1) | stats sum(cnt_like) as cnt_like,sum(cnt_unlike) as cnt_unlike by works_id]  | join type=outer works_id [search index=suiyuedb source=/opt/splunk/var/log/splunk/dbx2.log sourcetype=suiyuedb_play_times earliest=-1d@d | stats count as cnt_playtimes by works_id ] | table ts,works_id,title,cnt_playtimes,cnt_comment,cnt_like,cnt_unlike| sort -cnt_playtimes | rename ts as 上传时间, works_id as 作品id, title as 作品名称, cnt_playtimes as 播放次数, cnt_comment as 评论数, cnt_like as 点赞数, cnt_unlike as 点赞后取消数
+
+<!--获取设备版本号-->
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=device_on_activate OR behavior_event=device_on_active channel=yunos1  | fields platform channel udid |rex "device_info=\"(?<device_info>.+)\", geo_info=" | fields device_info| eval dd=device_info | spath input=dd | table *
+
+<!--点赞数-->
+index=ix_suiyuebi source=/opt/splunk/var/log/splunk/dbx2.log sourcetype=db_event_like status=1 | timechart span=1d count as 点赞数,dc(user_id) as 点赞用户数,dc(dest_id) as 被点赞动态数 | sort -_time
+
+<!--评论数-->
+index=suiyuedb source=/opt/splunk/var/log/splunk/dbx2.log sourcetype=suiyuedb_user_event_comment | timechart span=1d count as 评论数,dc(user_id) as 评论人数,dc(user_event_id) as 被评论的动态数| sort -_time
+
+<!--DJ评论数-->
+index=suiyuedb source=/opt/splunk/var/log/splunk/dbx2.log sourcetype=suiyuedb_user (id=1351) OR (id=80711) OR (id=76926) OR (id=77242) OR (id=78121) OR (id=84567) OR (id=1306) OR (id=2697) OR (id=82376) OR (id=77250) OR (id=1301) OR (id=77252) OR (id=1143) OR (id=82184) OR (id=1260) OR (id=77247) OR (id=1544) OR (id=89085) OR (id=77255) OR (id=80967) OR (id=77510) OR (id=80628) OR (id=4930) OR (id=7137) OR (id=93550) OR (id=77246) OR (id=76920) OR (id=4863) OR (id=1336) OR (id=378234) OR (id=77264)  earliest=01/01/2016:0:0:0 latest=06/20/2017:0:0:0| table id,nickname| rename id as user_id | join type=inner user_id[search index=suiyuedb source=/opt/splunk/var/log/splunk/dbx2.log sourcetype=suiyuedb_recommend | stats count by user_id| table user_id,count]
+
 ```
