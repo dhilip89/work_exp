@@ -3,6 +3,8 @@
 https://github.com/gangtao/echarts_for_splunk/tree/v1.0
 http://zkread.com/article/1317716.html
 
+http://docs.splunk.com/Documentation/Splunk/6.0.1/Alert/Definescheduledalerts#Schedule_the_alert
+
 source="drinks.csv" host="ricks-MacBook-Pro.local" sourcetype="echart_drink.csv" | table country, wine_servings,  beer_servings, spirit_servings,total_litres_of_pure_alcohol 
   | head 5
   
