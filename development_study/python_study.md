@@ -358,4 +358,23 @@ file_dir = self.recommend_config['recommend_hot_model_dir']
 ```
 ['it'] + ['was'] + ['annoying']
 ```
->>>>>>> 6ee120ef3c115209d2b74c76ebe076b43fe1eb29
+
+
+### mac python opencv openssl
+```
+pip3 install opencv-python
+pips install pyopenssl
+```
+
+### mac install opencv
+```
+brew install python
+brew install python3
+brew install opencv3 --with-contrib --with-python3
+echo /Users/rick/homebrew/opt/opencv3/lib/python2.7/site-packages >> /Users/rick/homebrew/lib/python2.7/site-packages/opencv3.pth
+
+echo /Users/rick/homebrew/opt/opencv3/lib/python3.6/site-packages >> /Users/rick/homebrew/lib/python3.6/site-packages/opencv3.pth
+
+link cv2.so
+test 
+```

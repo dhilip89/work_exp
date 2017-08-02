@@ -57,3 +57,7 @@ git fetch -p
 
 
 ```
+
+#### github clone push 提速
+
+>其实git clone或者git push特别慢，并不是因为http://github.com的这个域名被限制了。而是"http://github.global.ssl.fastly.Net"这个域名被限制了。那么首先查到这个域名的ip。然后再hosts文件中进行ip->域名映射就可以了。这个办法会让clone或者push速度飞起。
