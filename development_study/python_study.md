@@ -378,3 +378,9 @@ echo /Users/rick/homebrew/opt/opencv3/lib/python3.6/site-packages >> /Users/rick
 link cv2.so
 test 
 ```
+
+
+### NumPy入门详解
+```
+http://blog.topspeedsnail.com/archives/599
+```

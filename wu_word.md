@@ -6,3 +6,4 @@
 3. 域 FAKG
 4. 羊 UDJ
 5. 佛 WXJH
+6. 斤 RTTH
