@@ -478,3 +478,15 @@ tcpdump: 抓包工具
 ss: 连接查看工具
 其他: dstat, slurm, nload, bmon
 ```
+
+### shell实现 python for i in range(1,100)
+```
+1.
+	for i in `seq 100`
+	do
+		echo $i
+	done
+2.
+	i=1;while(($i<100)); do echo $i; i=$(($i+1)); done
+```
+
