@@ -70,15 +70,24 @@ if not _res then
 end
 
 -- kafka
--- 172.16.1.50
--- 172.18.1.15
+-- online 172.16.1.50
+-- local 172.18.1.15
+-- dev 172.18.1.7
 local broker_list = {
-    { host = "172.18.1.15", port = 9092 },
+    { host = "172.18.1.7", port = 9092 },
 }
-local p = producer:new(broker_list)
+
+if 'product' == ngx_env then
+    broker_list = {
+        { host = "172.16.1.50", port = 9092 },
+    }
+end
+
+local p = producer:new(broker_list, { producer_type = "async" })
 -- local key = 'test_key'
-local message = "hello world-----"
-local ok, err = p:send("hello", nil, cjson.encode(user_behavior))
+-- local message = "hello world-----"
+
+local ok, err = p:send("TOPIC_USER_BEHAVIOR", nil, cjson.encode(user_behavior))
 if not ok then
     ngx.say(ngx.ERR, "kafka send err:", err)
     return
