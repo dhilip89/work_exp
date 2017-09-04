@@ -7,3 +7,4 @@
 4. 羊 UDJ
 5. 佛 WXJH
 6. 斤 RTTH
+7. 膝盖 ESUG

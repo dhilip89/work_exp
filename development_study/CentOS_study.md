@@ -1,4 +1,4 @@
-# CentOS设置服务开机启动的方法
+# CentOS
 
 
 CentOS设置服务开机启动的两种方法
@@ -42,17 +42,14 @@ httpd 0:off 1:off 2:on 3:on 4:on 5:on 6:off
 2、修改 /etc/rc.d/rc.local 这个文件：
 例如将 apache、mysql、samba、svn 等这些服务的开机自启动问题一起搞定：
 
-1
-2
-3
-4
-5
-6
-7
-[天涯PHP博客]-[http://blog.phpha.com]
+```
 vi /etc/rc.d/rc.local
 #添加以下命令
 /usr/sbin/apachectl start
 /etc/rc.d/init.d/mysqld start
 /etc/rc.d/init.d/smb start
 /usr/local/subversion/bin/svnserve -d
+```
+
+## Listen queue size is greater than the system max net.core.somaxconn (128)”的错误
+如果日志“Listen queue size is greater than the system max net.core.somaxconn (128)”的错误， 可以把listen改为128以下，或者修改/etc/sysctl.conf文件，把“max net.core.somaxconn”设置调大。
