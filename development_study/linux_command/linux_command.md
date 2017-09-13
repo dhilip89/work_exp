@@ -490,3 +490,22 @@ ss: 连接查看工具
 	i=1;while(($i<100)); do echo $i; i=$(($i+1)); done
 ```
 
+### 分析nginx log  ，查出来前10 个访问最多的ip
+```
+cat nginx.log | awk '{print $1}' | sort -r |uniq | sort -n
+```
+
+### 写一个计划任务，让这个计划任务在11月份，每天6-12点，每2个小时运行一次
+
+```
+0 6,8,10,12 * 11 *   命令
+```
+
+### 使用tcpdump 命令 收集主机地址为192.168.1.1 端口为80 ，并输出到tcpdump.log中
+
+
+### 一条命令统计实时并发数
+```
+将其中的 $4 换成日志中的时间字段即可
+$ tail -f dev.access.log | awk 'BEGIN{OFS = "\t"; count = 0; iter_key = "check_key"}{count++; current = $4; if (iter_key != current) {print iter_key, count; count = 0; iter_key = current; }}'
+```

@@ -44,3 +44,21 @@ du -shc *
 第二个命令能在最后显示一个Total大小，即当前目录的总大小。
 ```
 
+### mac 查看端口
+```
+lsof -i:8002
+
+COMMAND   PID USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node    15813 rick   13u  IPv6 0xd297ca3495b11661      0t0  TCP *:teradataordbms (LISTEN)
+```
+
+### Mac Command 切换桌面或应用
+
+```
+# 切到PyCharm
+osascript -e 'tell application "PyCharm" to activate'
+# 切到Terminal
+osascript -e 'tell application "Terminal" to activate'
+# 切到Chrome
+osascript -e 'tell application "Chrome" to activate'
+```

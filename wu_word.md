@@ -8,3 +8,5 @@
 5. 佛 WXJH
 6. 斤 RTTH
 7. 膝盖 ESUG
+8. 漆 ISWI
+9. 绕 XATQ
