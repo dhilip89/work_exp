@@ -182,3 +182,21 @@ Login incorrect
 来自: http://man.linuxde.net/telnet
 ```
 
+
+网络调试利器呀:
+### 抓包
+```
+sudo tcpdump -Xnlps0 -i any tcp port 9501
+-i 参数制定了网卡
+any表示所有网卡
+tcp 指定仅监听TCP协议
+port 制定监听的端口
+[S] 表示这是一个SYN请求
+[.] 表示这是一个ACK确认包，(client)SYN->(server)SYN->(client)ACK 就是3次握手过程
+[P] 表示这个是一个数据推送，可以是从服务器端向客户端推送，也可以从客户端向服务器端推
+[F] 表示这是一个FIN包，是关闭连接操作，client/server都有可能发起
+[R] 表示这是一个RST包，与F包作用相同，但RST表示连接关闭时，仍然有数据未被处理。可以理解为是强制切断连接
+win xxx 是指滑动窗口大小
+length nn 指数据包的大小
+```
+

@@ -384,3 +384,30 @@ test
 ```
 http://blog.topspeedsnail.com/archives/599
 ```
+
+### python 匹配中英文
+```
+python 匹配中文和英文
+
+在处理文本时经常会匹配中文名或者英文word，python中可以在utf-8编码下方便的进行处理。
+
+中文unicode编码范围[\u4e00-\u9fa5]
+
+英文字符编码范围[a-zA-Z]
+
+此时匹配连续的中文或者英文就很方便了，例如：
+
+>>> import re
+>>> strings = u'中国china美国American'
+>>> print strings
+中国china美国American
+>>> ch_pat = re.compile(ur'[\u4e00-\u9fa5]+')
+>>> en_pat = re.compile('[a-zA-Z]+')
+>>> ch_words = ch_pat.findall(strings)
+>>> en_words = en_pat.findall(strings)
+>>> print ch_words
+[u'\u4e2d\u56fd', u'\u7f8e\u56fd']
+>>> print en_words
+[u'china', u'American']
+ 
+```
