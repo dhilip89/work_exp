@@ -509,3 +509,7 @@ cat nginx.log | awk '{print $1}' | sort -r |uniq | sort -n
 将其中的 $4 换成日志中的时间字段即可
 $ tail -f dev.access.log | awk 'BEGIN{OFS = "\t"; count = 0; iter_key = "check_key"}{count++; current = $4; if (iter_key != current) {print iter_key, count; count = 0; iter_key = current; }}'
 ```
+
+```
+awk -F: 'BEGIN{A=0;B=0} {if($3>100) {A++; print "large"} else {B++; print "small"}} END{print A,"\t",B}' /etc/passwd 
+```

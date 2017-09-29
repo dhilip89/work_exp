@@ -78,6 +78,9 @@ source="/Users/rick/service/splunk/splunk_data/feed/last_rank_listen_count.csv" 
 index=behavior source=suiyue_behavior sourcetype=suiyue_behavior platform=android | fields behavior_event udid platform |stats count by udid  | sort -count | rename count as "活跃度" |table *
 
 index=behavior source=suiyue_behavior sourcetype=suiyue_behavior platform=android AND (channel=yingyongbao1 OR channel= yingyongbaofufei1 OR channel= chuanbo1) | fields behavior_event udid platform |stats count by udid  | sort -count | rename count as "活跃度" |table *
+
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event = device_on_activate platform=ios | fields platform channel udid | stats count by udid
+
 ```
 
 
@@ -305,4 +308,12 @@ index=suiyuedb source=/opt/splunk/var/log/splunk/dbx2.log sourcetype=suiyuedb_wo
 
 <!---->
 
+```
+
+#### 城市地区dau
+```
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=app_on_close | rex "geo_info=\"(?<geo_info>.+)\", header_info=" | fields geo_info |eval _raw=geo_info | spath input=geo_info | timechart span=1d count by geoip_city
+
+
+index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=app_on_close | rex "geo_info=\"(?<geo_info>.+)\", header_info=" | fields geo_info |eval _raw=geo_info | spath input=geo_info |table geoip_city|where geoip_city!="" |stats count by geoip_city | sort -count |head 300
 ```
