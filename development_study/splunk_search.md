@@ -1,5 +1,5 @@
 ## EChart for Spluck
-````
+```
 https://github.com/gangtao/echarts_for_splunk/tree/v1.0
 http://zkread.com/article/1317716.html
 
@@ -44,6 +44,7 @@ referer == "feed/topic", "话题") | timechart span=1d count by feed_type
 ```
 
 ## 统计去留
+
 ```
 index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=app_on_open earliest=-4d@d latest=-3d@d | dedup 1 channel udid |fields udid | eval zero=1 | join type=outer udid [search index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=app_on_open earliest=-3d@d latest=-2d@d | dedup 1 channel udid | eval first=1 | table udid first] | stats sum(zero) as zero_sum, sum(first) as first_sum | eval first_day_ratio = first_sum/zero_sum*100 | table *
 
@@ -53,9 +54,8 @@ index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=
 | join type=outer udid [search index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=app_on_open earliest=-29d latest=-28d | dedup 1 channel udid | eval second=1 | table udid second] 
 | stats sum(zero) as zero_sum, sum(first) as first_sum, sum(second) as second_sum 
 | eval first_ratio = first_sum/zero_sum*100, second_raio=second_sum/zero_sum*100
-```
 
-```
+
 convert mktime(_time) AS ms_time | table ms_time
 
 | convert mktime(_time) AS s_time | where s_time > 1484236800 and s_time < 1484323199| table _time
@@ -244,6 +244,7 @@ index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=
 ### 查看作品收藏用户udid
 ```
 |dbxquery query="select l.works_id, l.user_id, l.create_time from works_like as l where works_id=80170" connection="suiyue_db" shortnames="true" | eval _time=strptime(ts,"%Y-%m-%d %H:%M:%S") |eval weeknumber= tonumber(strftime(_time,"%U"))+1,monthnumber=strftime(_time,"%m"),yearnumber=strftime(_time,"%Y") | table works_id, user_id, create_time |join type=outer user_id [search index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=app_on_close |where isnotnull(udid)| table user_id udid]
+
 ```
 
 
@@ -307,10 +308,10 @@ index=suiyuedb source=/opt/splunk/var/log/splunk/dbx2.log sourcetype=suiyuedb_pl
 index=suiyuedb source=/opt/splunk/var/log/splunk/dbx2.log sourcetype=suiyuedb_works earliest=-1d@d latest=@d| table ts,id,title | rename id as works_id | sort ts  |  join type=outer works_id [search index=ix_suiyuebi source=/opt/splunk/var/log/splunk/dbx2.log sourcetype=db_works_comment status=0 earliest=-1d@d| stats count as cnt_comment by works_id] | join type=outer works_id [search index=ix_suiyuebi source=/opt/splunk/var/log/splunk/dbx2.log sourcetype=db_works_like  earliest=-1d@d| eval cnt_like=case(status==1,1) | eval cnt_unlike=case(status==0,1) | stats sum(cnt_like) as cnt_like,sum(cnt_unlike) as cnt_unlike by works_id]  | join type=outer works_id [search index=suiyuedb source=/opt/splunk/var/log/splunk/dbx2.log sourcetype=suiyuedb_play_times earliest=-1d@d | stats count as cnt_playtimes by works_id ] | table ts,works_id,title,cnt_playtimes,cnt_comment,cnt_like,cnt_unlike| sort -cnt_playtimes | rename ts as 上传时间, works_id as 作品id, title as 作品名称, cnt_playtimes as 播放次数, cnt_comment as 评论数, cnt_like as 点赞数, cnt_unlike as 点赞后取消数
 
 <!---->
-
 ```
 
 #### 城市地区dau
+
 ```
 index=behavior source=suiyue_behavior sourcetype=suiyue_behavior behavior_event=app_on_close | rex "geo_info=\"(?<geo_info>.+)\", header_info=" | fields geo_info |eval _raw=geo_info | spath input=geo_info | timechart span=1d count by geoip_city
 
