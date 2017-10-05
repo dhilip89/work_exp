@@ -5,12 +5,14 @@
 ### 诊断间歇性问题
 
 #### 使用SHOW GLOBAL STATUS
+
 ```
 mysqladmin ext -i1 | awk '
 /Queries/{q=$4-qp;qp=$4}
 /Threads_connected/{tc=$4}
 /Threads_running/{printf "%5d %5d %5d\n", p, tc, $4}'
 ```
+
 此命令计算并输出每秒的查询数，Threads_connected和Threads_running(表示当前正在执行查询的线程数), 这三个数据的趋势对于服务器级别偶尔停顿的敏感性很高。一般发生此类问题时，根据原因的不同和应用连接数据库的方式的不同，每秒的查询数一般会下跌，而其他两个则至少有一个会出现尖刺。如果应用使用了连接池，Threads_connected没有变化，但正在执行查询的线程数明显上升，同时每秒的查询数相比正常数据有严重的下跌。
 如何解析这个现象：
 
@@ -19,9 +21,11 @@ mysqladmin ext -i1 | awk '
 * 另外一个原因是服务区突然遇到了大量查询请求的冲击，比如前端的memcached突然失效导致的查询风暴。 
 
 #### 使用 SHOW PROCESSLIST
+
 ```
 mysql -e 'SHOW PROCESSLIST\G' | grep State: | sort | uniq -c | sort -rn
 ```
+
 可以看到线程的状态有:freeing items, end, cleaning up, logging slow query，大量的线程处于'freeing items'状态是出现了大量有问题查询的很明显的特征和指示
 
 如果MySql服务器的版本较新，也可以直接查询INFOMATION_SCHEMA中的PROCESSLIST表；或者使用innotop工具以较高频率刷新。
@@ -44,6 +48,7 @@ mysql -e 'SHOW PROCESSLIST\G' | grep State: | sort | uniq -c | sort -rn
 如果由于某些原因，不能设置慢查询日志记录所有的查询，也可以通过tcpdump和pt-query-digest工具来模拟替代。
 
 利用脚本根据MySQL每秒将当前时间写入日志中的柜式统计每秒的查询数量。
+
 ```
 awk '/^# Time:/{print $3, $4, c;c=0}/^# User/{c++}' slow-query.log
 ``
@@ -110,9 +115,11 @@ awk '
 ```
 
 ##### 使用用USER_STATISTICS
+
 ```
 show tables from information_schema like '%_statistics'
 ```
+
 通过上面的查询可以了解到：
 
 * 可以查找使用得最多的或者是使用用得最少的表和索引，通过读取次数或者更新次数，或者两者一起排序
@@ -241,6 +248,7 @@ SET
 MySQL在内部使用整数存储ENUM, SET类型，然后在做比较操作时转换为字符串
 
 例如
+
 ```
 CREATE TABLE ac;(perms SET('CAN_READ', 'CAT_DELETE') NOT NULL);
 
@@ -251,6 +259,7 @@ SELECT perms FROM acl WHERE FIND_IN_SET('CAN_READ', perms);
 ```
 
 若用整数来存储：
+
 ```
 SET 	@CAN_READ := 1 << 0,
 		@CAN_WRITE := 1 << 1,
@@ -292,6 +301,7 @@ SELECT perms FROM acl WHERE perms & @CAN_READ;
 混用范式化与反范式化
 
 #### 缓存表与汇总表
+
 ```
 CREATE TABEL msg_per_hr (
 	hr DATATIME NOT NULL,
@@ -340,11 +350,13 @@ MySQL的ALTER TABLE操作的性能对大表来说是个大问题。
 ```
 ALTER TABLE sakila.film MODIFY COLUMN rental_duration TINYINT(3) NOT NULL DEFAULT 5;
 ```
+
 此操作会拷贝整张表到一张新表，甚至列的类型，大小各可否为NULL的属性都没有改变
 
 ```
 ALTER TABLE sakila.film ALTER COLUMN rental_duration SET DEFAULT 5;
 ```
+
 理论上，MySQL可以跳过创建新表的步骤，表的默认值实际在表的.frm文件中，可以直接修改这个文件而不需要改动表本身。此操作就可以直接修改.frm文件，所以非常的快。
 
 另外，也可以通过交换.frm文件实现ALTER TABLE:
@@ -356,11 +368,13 @@ ALTER TABLE sakila.film ALTER COLUMN rental_duration SET DEFAULT 5;
 
 #### 快速创建MyISAM索引
 为了高效地载入数据到MyISAM表中，常用的技巧是：先禁用索引，载入数据，然后重新启用索引。
+
 ```
 ALTER TABLE test.load_data DISABLE KEYS;
 ---load data
 ALTER TABLE test.load_data ENABLE KEYS;
 ``` 
+
 不幸地是，这个办法对唯一索引无效，因为DISABLE KEYS只对非唯一索引有效。
 
 SCHEMA设计总结：
@@ -374,6 +388,10 @@ SCHEMA设计总结：
 * 小心使用ENUM SET。虽然他们使用起来很方便，但是不要滥用，否则有时候会变成陷阱，最好避免使用BIT
 
 ## 第五章 创建高性能的索引
+### 5.1索引基础
+索引可以包含一个或多个列的值，如果索引包含多个列，那么列的顺序也十分重要，因为MySQL只能高效地使用索引的最左前缀列。
+
+### 5.1.1索引的类型
 MyISAM使用前缀压缩技术使得索引更小，但InnoDB则按照原数据进行存储；MyISAM索引通过数据物理位置引用被索引的行，而InnoDB则根据主键引用被索引的行。
 
 B-Tree通常意味着所有有值都是按顺序存储的，并且每一个叶子页到根的距离相同
@@ -422,9 +440,37 @@ MyISAM表支持空间索引，可以用作地理数据存储。和B-Tree索引�
 #### 全文索引
 全文索引是一种特殊索引，它查找是文本中的关键词，而不是直接比较索引中的值。需可注意的细节，如停用词，词干，复数，布乐搜索等
 
-###索引的优点
+### 5.2索引的优点
 
 * 索引大大减小了服务器需要扫描的数据量
 * 索引可以帮助服务器避免排序各临时表
 * 索引可以将随机I/O变成顺序I/O
 
+三星索引：
+
+* 索引将相关的记录放到一起则获一颗性
+* 索引中的数据顺序各查找中的排序顺序一致则获两颗星
+* 索引中的列包含了查询中需要的全部列则获得三星
+
+### 5.3高性能的索引策略
+#### 5.3.1独立的列
+#### 5.3.2前缀索引各索引选择性
+索引很长的字符列，会让索引变大且慢，可以索引开始的部分字符，这样可以大大节约索引空间，从而提高索引效率，但同时会降低索引的选择性
+
+索引的选择性是指，不重复的索引值（也称为基数，cardinality）和数据表的记录总数（#T）的比值，范围从1/#T到1之间，索引的选择性越高则查询效率越高，因为选择性高的索引可以让MySQl查找时过滤掉更多的行。唯一索引的选择性就是1，这是最好的索引选择性，性能也是最好的。
+
+对于BLOB TEXT或是很长的VARCHA类型的列，必须使用前缀索引，因为MySQL不允许索引这些列的完整长度。
+
+反缀索引（suffix index）要以通过反转字符，触发器等技术手段实现。
+
+#### 5.3.3多列索引
+索引合并策略会有一定的优化，但也说明索引建得不好：
+
+* 当出现服务器对多个索引做相交操作时（通常有多个AND条件），通常意味着需要一个包含所有相关列的多列索引，而不是多个独立的单列索引
+* 当服务器需要对多个索引做联合操作时（通常有多个OR条件），通常需要耗费大量的CPU和内存资源在算法的缓存，排序和合并操作上。特别是当其中有些索引的选择性不高，需要合并扫描返回的大量数据的时候
+* 更重要的是，优化器不会把这些计算到‘查询成本（cost）’中，优化器只关心随机页面读取。会消耗更多的CPU和内存资源，这样会影响查询的并发性。
+
+可以通过optimizer_switch来关闭索引合并。也可以用IGNORE INDEX来提示让优化器忽略掉某些索引
+
+#### 5.3.4选择合适的索引顺序
+索引的顺序适用于B-Tree，哈希索引或是其他类型的索引并不会像B-Tree一样按顺序存储数据
