@@ -51,7 +51,7 @@ mysql -e 'SHOW PROCESSLIST\G' | grep State: | sort | uniq -c | sort -rn
 
 ```
 awk '/^# Time:/{print $3, $4, c;c=0}/^# User/{c++}' slow-query.log
-``
+```
 
 问题诊断时，建议使用前两方法： SHOW STATUS 和 SHOW PROCESSLIST。这两种方法开销很低，而且可能通过简单的shell脚本或者反复执行的查询来交互式地收集数据。
 
