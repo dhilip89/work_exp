@@ -13,3 +13,11 @@
 10. 舞 RLGH
 11. 仗 WDYY
 12. 蔽 AUMT
+13. 栈 
+14. 糟 OGMJ
+15. 糕 OUGO
+16. 疏 NHYQ
+17. 午 TFJ
+18. 曹 GMAJ
+19. 幸 FUFJ
+20. 逐 EPI
