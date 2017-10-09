@@ -261,9 +261,9 @@ SELECT perms FROM acl WHERE FIND_IN_SET('CAN_READ', perms);
 若用整数来存储：
 
 ```
-SET 	@CAN_READ := 1 << 0,
-		@CAN_WRITE := 1 << 1,
-	 	@CAN_DELETE := 1 << 2;
+SET @CAN_READ := 1 << 0,
+	@CAN_WRITE := 1 << 1,
+	@CAN_DELETE := 1 << 2;
 	 	
 CREATE TABLE acl(perms TINYINT UNSIGNED NOT NULL DEFAULT 0);
 
