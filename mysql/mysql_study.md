@@ -703,6 +703,25 @@ InnoDB一般不会损坏，一旦出现损坏，要么是硬件问题，要么�
 
 将一个复杂的查询分成多个简单的查询
 
+```
+select tbl1.col1, tbl2.col2
+	from tbl1 inner join tbl2 using(col3)
+	where tbl1.col1 in (5,6)
+	
+//关联查询伙伪代码
+outer_iter = interator over tbl1 where col1 in(5,6)
+outer_row = outer_iter.next
+while outer_row
+	inner_iter = iterator over tbl2 where col3 = out_row.col3
+	inner_row = inner_iter.next
+	while inner_row
+		output [outer_row.col1, inner_row.col2]
+		inner_row = inner_iter.next
+	end
+	outer_row = outer_iter.next
+end
+```
+
 #### 6.3.3 分解关联查询
 分解关联查询的优势：
 
@@ -742,7 +761,7 @@ Locked
 Analyzing and statistics
 > 线程正在收集存储引擎的统计信息，并生成查询的执行计划
 
-Copying to tmp tabel [on disk]
+Copying to tmp table [on disk]
 > 线程正在执行查询，并且将其结果集都复制到一个临时表中，这种状态要么是group by 操作，要么是文件排序操作，或者是union操作。有时也会将一个内存临时表放到磁盘上
 
 Sorting result
@@ -800,6 +819,45 @@ select film_id from sakila.film where exist(select * from sakila.film_actor wher
 ```
 
 
+#### 6.5.5 并行执行
+MySQl无法利用多核特性来并行执行查询。很多其他的关系型数据库能够提供这个特性，但是MySQL做不到。
+
+MySQL所有关联都是嵌套循环关联。
+
+### 6.6 查询优化器的提示（hint）
+
+* HIGH_PRIORITY 和 LOW_PRIORITY
+
+	> 当多个语句同时访问一个表时，哪些语句优先级相同对高些，哪些低些
+* DELAYED
+* STRAIGHT_JOIN
+
+	> 可放在select后，也可放置在任何两个关联表的名字之间。第一个用法是让查询中所有的表按照在语句中出现的顺序进行关联。第二个用法则是固定其前后两个表的关联顺序。
+* SQL_SMALL_RESULT 和 SQL_BIG_RESULT
+* SQL_BUFFER_RESULT
+* SQL_CACHE 和 SQL_NO_CACHE
+
+	> 结果是否应该缓存在查询缓存中
+* SQL_CALC_FOUND_ROWS
+* FOR UPDATE 和 LOCK IN SHARE MODE
+
+	> 这不是真正的优化提示。主要控制select语句的锁机制，但只对行经锁的存储引擎有效
+* USE INDEX, INGORE INDEX, FORCE INDEX
+
+	> 这几个提示告诉优化器使用或者不使用哪些索引来查询记录
+
+
+MySQL5.0和更新版本，新增了一些参数控制优化器：
+
+* optimizer_search_depth
+
+	> 此参数控制优化器在穷举执行计划时的限度。
+* optimizer_prune_level
+
+	> 此参数默认打开，这优化器根据需要扫描的行数业来决定是否跳过某些执行计划
+* optimizer_switch
+	
+	> 开启/关闭优化器特性的标志
 
 
 

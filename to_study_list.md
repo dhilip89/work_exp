@@ -14,3 +14,6 @@
 
 ### kdtree c++版本
 [http://blog.csdn.net/haipengdai/article/details/51959395](http://blog.csdn.net/haipengdai/article/details/51959395)
+
+### 寻找一种易于理解的一致性算法（扩展版）
+[https://github.com/maemual/raft-zh_cn/blob/master/raft-zh_cn.md](https://github.com/maemual/raft-zh_cn/blob/master/raft-zh_cn.md)
