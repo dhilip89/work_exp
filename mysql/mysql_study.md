@@ -261,7 +261,8 @@ SELECT perms FROM acl WHERE FIND_IN_SET('CAN_READ', perms);
 若用整数来存储：
 
 ```
-SET @CAN_READ := 1 << 0,
+SET 
+	@CAN_READ := 1 << 0,
 	@CAN_WRITE := 1 << 1,
 	@CAN_DELETE := 1 << 2;
 	 	
