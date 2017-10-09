@@ -860,6 +860,162 @@ MySQL5.0和更新版本，新增了一些参数控制优化器：
 	> 开启/关闭优化器特性的标志
 
 
+COUNT()的作用
+
+count()一个特殊的函数，有两种非常不同的作用：它可以统计某个列值的数据，也可以统计行数。
+
+当MySQL确认括号内表达式的值不可能为空时，实际上就是在统计行数。最简单的就是使用count(*)的时候，这种情况下通配符 \* 并不会像我们猜想的那样扩展成所有的列，它会忽略所有的列而直接统计所有的行数。
+
+当没有任何where条件时，MyISAM的count(*)速度非常的快。
+
+查询技巧
+
+```
+select (select count(*) from world.city) - count(*) from world.city where id <= 5;
+
+select sum(if(color = 'blue', 1, 0)) as blue, sum(if(color='red', 1,0)) as red from items;
+
+也可以
+select count(color = 'blue' or Null) as blue, count(color = 'red' or null) as red from items;
+```
+#### 6.7.2 优化关联查询
+
+* 确保ON或USING子句中的列在有索引。一般来说，除非有其他理由，否则只需要在关联顺序中的第二个表的相应列上创建索引。
+* 确保任何的GROUP BY 和 ORDER BY中的表达式只涉及到一个表中的列，这样MySQL才有可能使用索引来优化这个过程。
+* 当MySQL升级要注意：关联语法，运算优先级等可能发生变化的地方。因为以前是普通关联的地方可能会变笛卡尔积，不同类型的关联可能会生成不同的结果。
+
+#### 6.7.3 优化子查询
+关于子查询优化就是建议尽可能使用关联查询代替。
+
+#### 6.7.4 优化GROUP BY 和 DISTICT
+在MySQL中，当无法使用索引的时候，GROUP BY使用两种策略在完成：使用临时表或文件排序来做分组。可以通过使用提示 SQL_BIG_RESULT, SQL_SAMLL_RESULT来让优化器按照用户希望的方式运行。
+
+如果没有通过ORDER BY子句显式地指定排序列，当查询使用GROUP BY子句的时候，结果集会自动按照分组的字段进行排序，如果不关心数据顺序，则可以使用ORDER BY NULL，让MySQL不再进行文件排序。也可以直接在GROUP BY子句中直接使用DESC, ASC关键字，使分组的结果集按需求的方向排序。
+
+分组查询的一个变种是要求MySQL对返回的分组结果再做一次超级聚合。可以使用GROUP BY WITH ROLLUP子句来实现这种逻辑，便可能不够优化。
+
+6.7.5 优化LIMIT分布
+
+优化分页查询的一个简单的方法是尽可能地使用索引覆盖扫描，而不是查询所有的列。然后再根据需要做一次关联操作再返回所需要的列。
+
+```
+select film_id, description from sakila.film order by title limit 50, 5;
+
+可以改成：
+
+select film.film_id, film.description from sakila.film inner join (select film_id from sakila.film order by title limit 50, 5) as lim using(film_id);
+这种‘延迟关联’将大大提升效率，它让MySQL扫描更少的页面。
+
+主键查询
+selec * from sakila.rental where rental_id < 16030 order by rental_id desc limit 20;
+```
+其他优化方法包括使用预先计算的汇总表，或关联到一个冗余表，冗余表只包含主键列和需要做排序的数据列。
+
+#### 6.7.6 优化SWL_CALC_FOUND_ROWS
+分页的时候，另一个常用的技巧是在limit语句中加上SQL_CALC_FOUND_ROWS提示。这样可以获取去掉limit以后满足条件的行数。但每次都会扫描所有满足条件的行，再抛弃不需要的行，而不是在满足limit的行数后就终止扫描，如此提示的代价非常高。
+
+另一种方式是，需要20条记录，可以先获取21条，第页20个，若21存在，则还有下一页。
+
+还有一种做法是先获取并缓存较多的数据，如10000条，然后每次分页都从缓存里央获取。
+
+如果只需要总数的近似值，可以考虑使用EXPLAIN的结果中的rows列的值。
+
+#### 6.7.7优化UNION查询
+MySQL总是通过创建并填充临时表的方式来执行UNION查询。优化时需手工地将WHERE, LIMIT, ORDER BY等子句‘下推’到UNION的各个子查询中。除非确实需要服务器消除重复行，否则一定要使用UNION ALL，因为没有ALL，MySQL会给临时表加上DISTINCT选项，这会导致对整个临时表数据做唯一性检查。
+
+#### 6.7.8 作用用户自定义变量
+
+```
+set @one : = 1;
+set @min_actor := (select min(actor_id) from sakila.actor);
+set @last_week := current_date - interval 2 week;
+
+select ... where col <= @last_week;
+```
+
+不适合用定义变量的地方：
+
+* 使用自定义变量的查询，无法使用查询缓存
+* 不能在使用常量或标识符的地方使用自定义变量，如表名，列名，limit子句中
+* 用户自定义变量的生命周期是在一个连接中有效，不能用它们来做连接间的通信
+* 如果使用连接池或是持久化连接，自定义变量可能让看起来毫无关系的代码发生交互。通常是bug.
+* 在5.0之前的版本，在大小写敏感的。
+* 不能显示地声明自定义变量的类型。
+* MySQL优化器在某些场景下可能会将这些变量优化掉，导致代码不按预想方式运行
+* 赋值的顺序与赋值的时间点并不总是固定的，这依赖于优化器的决定。
+* 赋值符号 := 优先级非常低，注意表达式的优先级操作
+* 使用未定义的变量不会产生任何语法错误。
+
+优化排序语句
+
+```
+set @curr_cnt := 0; @prev_cnt := 0; @rank := 0;
+select actor_id,
+	@curr_cnt := cnt as cnt,
+	@rank := if($prev_cnt <> @curr_cnt, @rand + 1, @rank) as rank,
+	@prev_cnt := @curr_cnt as dummy
+from (
+	select actor_id, count(*) as cnt from sakila.film_actor group by actor_id order by cnt desc limit 10) as der;
+)
+
+update t1 seet lastupdated = NOW() where id = 1 and @now := NOW();
+select @now;
+```
+
+统计更新和插入的数量 
+
+```
+insert into t1(c1, c2), (2,1), (3,1) on duplicate key update c1 = VALUES(c1) + (0 * (@x := @x + 1))
+```
+另外MySQL的协议会返回被更改的总行数，所以不需要单独存储上面这个值。
+
+变量用法示例
+
+```
+set @rownum := 0;
+select actor_id, @rownum as rownum
+	from sakila.actor
+	where (@rownum := @rownum + 1) <= 1;
+	
+set @rownum := 0;
+select actor_id, first_name, @rownum as rownum
+	from sakila.actor
+	where @rownum <= 1
+	order by first_name, LEAST(0, @rownum := @rownum + 1);
+	
+类似的函数还有：
+GREATEST()
+LENGTH()
+ISNULL()
+NULLIFL()
+IF()
+COALESCE()
+```
+偷懒的UNION
+
+```
+select GREATEST(@found := -1, id) as id, 'users' as which_tbl
+from users where id = 1
+union all
+	select id, 'users_archived'
+	from users_archived where id = 1 and @found is null
+union all
+	select 1, 'reset' from DUAL where (@found := NULL) is not null;
+```
+
+自定义变量可以做什么
+
+* 查询运行时计算总数和平均值
+* 模拟GROUP语句中的函数FIRST() LAST()
+* 对大量数据做一些数据计算
+* 计算一个大表的MD5散列值
+* 编写一个样本处理函数，当样本中的数值超过某个边界时候将其变成0
+* 模拟读/写游标
+* 在SHOW语句的WHERE子句中加入变量值
+
+
+
+
 
  
 
