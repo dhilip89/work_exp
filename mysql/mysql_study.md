@@ -1091,9 +1091,45 @@ where lat between 38.03 - degree(0.0253) and 38.03 + degree(0.0253)
 * 如果分区字段中有主键或是唯一索引的列，那么所有主键列和唯一索引列都必须包含进来
 * 分区表中无法使用外键约束
 
+MySQL的操作 SELECT, INSERT, DELETE, UPDATE这些操作都会‘先打开并锁住所有的底层表’，但并不是说分区表在处理过程中是锁住全表的。如查存储引擎能够自己实现行级锁，例如InnoDB，则会在分区层释放对表锁。
 
+下表将每一年的销售额放在不同的分区里
 
+```
+create table sales (
+	order_date columns omitted
+) engine=InnoDB partition by RANGE(YEAR(order_date)) (
+	partition p_2010 values less than(2010),
+	partition p_2011 values less than(2011),
+	partition p_2012 values less than(2012),
+	partition p_catchall values less MAXVALUE
+);
+```
 
+常用的分区技术有：
+
+* 根据键值进行分区，来减少InnoDB的互斥竞争
+* 使用数学模函数进行分区,然后将数据轮询放入不同的分区。例如对日期做模7的运算，或者更简单的使用返回周几的函数。
+* hash(id div 100000)
+
+查询大数据，为保证大数据的扩展性，有两个策略：
+
+* 全量扫描数据，不要任何索引
+
+	> 使用简单的分区方式存放表，不要任何索引，根据分区的规则大致定位需要的数据位置。只要能够使用where条件，将需要的数据限制在少数分区中，则效率是很高的。
+
+* 索引数据，并分离热点
+
+	> 数据有明显的热点，而且除了这部分数据，其他的数据很少被访问到，可以将这部分数据单独放在一个分区中，让这个分区的数据能够有机会缓存在内存中。
+
+上面两个策略在一些场景会出问题：
+
+* NULL值会使分区过滤无效
+
+	> 可以创建一个‘无用’的第一个分区。5.5以后可以直接PARTITION BY RANGE COLUMNS(order_date)
+
+* 分区列和索引列不匹配
+*  
 
 
 
