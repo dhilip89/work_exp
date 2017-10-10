@@ -821,7 +821,7 @@ select film_id from sakila.film where exist(select * from sakila.film_actor wher
 
 
 #### 6.5.5 并行执行
-MySQl无法利用多核特性来并行执行查询。很多其他的关系型数据库能够提供这个特性，但是MySQL做不到。
+MySQL无法利用多核特性来并行执行查询。很多其他的关系型数据库能够提供这个特性，但是MySQL做不到。
 
 MySQL所有关联都是嵌套循环关联。
 
@@ -1013,6 +1013,88 @@ union all
 * 编写一个样本处理函数，当样本中的数值超过某个边界时候将其变成0
 * 模拟读/写游标
 * 在SHOW语句的WHERE子句中加入变量值
+
+案例学习
+
+```
+SET AUTOCOMMIT = 1;
+COMMIT;
+UPDATE unsent_emails
+	SET status = 'claimed', owner = CONNECTION_ID()
+	WHERE owner = 0 and status = 'unsent'
+	LIMIT 10;
+SET AUTOCOMMIT = 0;
+SELECT id FROM unsend_emails
+	WHERE owner = CONNECTION_ID() AND status = 'claimed';
+	
+UPDATE unsent_emails 
+	SET owner = 0, status = 'unsent'
+	where owner not in (0, 10, 20, 30) and status = 'claimed' 
+	and ts < CURRENT_TIMESTAMP - INTERVAL 10 MINUTE;
+```
+
+MySQL构造队列原则
+
+* 尽量少做事，可以话就不要做任何事情。除非情非得已，否则不要用轮询
+* 尽可能快地过完成需要做的事。尽量用UPDATE代替SELECT FRO UPDATE，因为事务提交的速度越快，持有的锁时间就越短
+* 某些查询是无法优化的，考虑用不同的查询或是策略去实现相同的目的。
+
+空点计算
+
+```
+ACOS(
+	COS(latA) * COS(latB) * COS(lonA - lonB)
+	+ SIN(latA) * SIN(latB)
+);
+
+select * from locations where 3979 * ACOS(COS(RADIANS(lat)) * COS(RADIANS(38.03)) * COS(RADIANS(lon) - RADIANS(-78.48))) <= 100;
+
+//下面的语句无法使用索引，因为第一列是范围查询，如果加了索引(lat, lon) or (lon,lat)，因为两个列都是范围，所以这里只使用索引的一个列。
+select * from locations where lat between 38.03 - degree(0.0253) and 38.03 + degree(0.0253) 
+	and lon between -78.48 - degree(0.0253) and -78.48 + degree(0.0253);
+```
+
+根据坐标一定的范围近似值来搜索
+
+```
+alter table locations
+	add lat_floor int not null default 0,
+	add lon_floor int not null default 0,
+	add key(lat_floor, lon_floor);
+	
+update locations set lat_floor = floor(lat), lon_floor = floor(lon);
+
+select * from locations
+where lat between 38.03 - degree(0.0253) and 38.03 + degree(0.0253)
+	and lon between -78.48 -  degree(0.0253) and -78.48 + degree(0.0253)
+	and lat_floor in (36, 37, 38, 39, 40) and lon_floor in(-80, -79, -78, -77)
+```
+
+优化三管齐下：
+
+不做，少做，快速地做。
+
+## 第七章 MySQL高级特性
+### 7.1 分区表
+分区的作用：
+
+* 表非常大以至于无法全部都放在内存中，或者只在表的最后部分有热点数据，其他均是历史数据。
+* 分区表的数据更容易维护。想批量删除大量数据可以使用清除整个分区的方式。另外可以对一个独立分区进行优化，检查，修复等操作
+* 分区表的数据可以分布在不同的物理设备上，从而高效地利用多个硬件设备。
+* 可以使用分区表来避免某些特殊的瓶颈，例如InnoDB的单个索引的互斥访问，ext3文件系统的inode锁竞争。
+* 备份和恢复独立的分区。
+
+分区限制：
+
+* 一个表最多只能有1024个分区
+* 在MySQL5.1，分区表达式必须是整数，或是返回整数的表达式。5.5中，某些场景中可以直接使用列来进行分区。
+* 如果分区字段中有主键或是唯一索引的列，那么所有主键列和唯一索引列都必须包含进来
+* 分区表中无法使用外键约束
+
+
+
+
+
 
 
 
