@@ -1283,6 +1283,30 @@ END
 ```
 
 #### 7.4.3 事件
+事件的典型应用有： 定期地维护任务，重建缓存，构建汇总表来模拟物化视图，或者存储用于监控和诊断的状态值。
+
+```
+CRREATE EVENT optimize_somedb ON SCHEDDULE EVERY 1 WEEK
+DO
+CALL optimize_tables('somedb');
+
+//以下例子确保在同一时期内只有一个相同的事件被触发
+//CONTINUE HANDLED用来确保即使当事件出了异常，仍然会释放持有的锁
+CREATE EVENT optimize_somedb ON SCHEDULE EVERY 1 WEEK
+DO
+BEGIN
+	DECLARE CONTINUE HANDLERFOR SQLEXCEPTION
+		BEGIN END;
+	IF GET_LOCK('somedb', 0) THEN
+		DO CALL optimize_tables('somed');
+	END IF;
+	DO RELEASE_LOCK('somedb');
+END
+
+//该选项一旦设置，线程就会执行各个用户指定的事件中的各段Sql代码。
+SET GLOBAL event_scheduler :=1;
+
+```
 
 
  
