@@ -1305,8 +1305,41 @@ END
 
 //该选项一旦设置，线程就会执行各个用户指定的事件中的各段Sql代码。
 SET GLOBAL event_scheduler :=1;
+```
+
+#### 7.4.4 在存储程序中保留注释
+MySQL命令行客户端会自动过滤掉注释。
+可以使用版本相关的注释，这样的注释可能被服务器执行。
+
+只需加一个合适的版本号
 
 ```
+CREATE TRIGGER fake_statement_trigger
+BEFORE INSERT ON sometable
+FOR EACH ROW
+BEGIN
+	DECLARE v_row_count INT DEFAULT ROW_COUNT();
+	/*!99999 ROW_COUNT() is 1 expect for the first row, so this executes only once per statement */
+	IF v_row_count <> 1 THEN
+		--code here
+	END IF;
+END;
+```
+
+### 7.5 游标
+MySQL在服务端提供只读的，单向的游标，可以在循环中嵌套地使用，基于临时表实现
+
+### 7.6 绑定变量
+```
+INSERT INTO tbl(col1, col2, col3) VALUES (?, ?, ?)
+```
+MySQL通过绑定变量可以更高效地执行大量的重复语句，原因有：
+
+* 在服务器端只需要解析一次SQL语句
+* 在服务器端某些优化器的工作只需要执行一次，因为它会缓存一部分的执行计划
+* 以二进制的方式只发送参数与句柄，比起每次都发送ASCII码文本效率更高。最大的节省来自于BLOB, TEXT字段，绑定变量的形式可以分块传输，无须一次性传输。二进制协议在客户端也可能节省很多内存，减少网络开销，另外还节省了将数据从存储原始格式转换成文本格式的开销。
+* 仅仅传递参数，而不是整个查询语句，所以网络开销更小
+* MySQL在存储参数的时候，直接将其放到缓存中，不再需要在内存中多次复制。
 
 
  
