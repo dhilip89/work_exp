@@ -1363,3 +1363,31 @@ SQL接口的绑定变量
 
 必须要确保UDF是线程安全的，因这它们需要在MySQL中执行，而MySQL是一个纯粹的多线程环境。
 
+#### 7.9.1 MySQL如何使用字符集
+创建对象时的默认设置
+
+* 创建数据库的时候，将数据库服务器上的character_set_server设置来设定该数据库的默认字符集
+* 创建表的时候，将根据数据库的字符集设置来指定表的字符集设置
+* 创建列的时候，将根据表的设置来指定列的字符集设置
+
+使用前缀和COLLATE子句来指定字符串的字符或者校对字符集
+
+```
+select _utf8 'hello world' COLLATE utf8_bin;
+```
+
+一些特殊情况
+
+* 诡异的character_set_database设置
+	> 此参数设置的默认值和默认数据库的设置相同时。当改变默认数据库的时候，这个变量也会跟着变。所以当连接到MySQL实例上又没有指定要使用的数据库时，默认值会和character_set_database相同
+	
+* LOAD DATA INFILE
+	> 使用LOAD DATA INFILE的时候，数据库总是将文件中的字符集character_set_database来解析。5.0以后的版本可以在LOAD DATA INFILE中使用子句CHARACTER SET来设置字符集。最好的方式是用USE指定数据库，再行行SET NAMES来设定字符集，最后再加载数据。
+
+* SELECT INFO OUTFILE
+	>MYSQL会将SELECT INFO OUTFILE的结果不做任何转码地写入文件。除了使用CONVERT()将所有的列都做一次转码外，没有别的办法能够指定输出的字符集
+	
+* 嵌入式转义序列
+	> MySQL会根据character_set_client的设置来解析转义列，即使是字符串包含前缀或者COLLATE子句也一样。对于解析器来说，前缀并不是一个指令，只是一个关键字
+	
+数据库的字符设置的极简原则： 最好先为服务器或是数据库选择一个合理的字符集，然后根据不同的实际情况，让某些列选择合适的字符集。
