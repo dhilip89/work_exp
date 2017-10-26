@@ -21,3 +21,4 @@
 18. 曹 GMAJ
 19. 幸 FUFJ
 20. 逐 EPI
+21. 戒 AAK

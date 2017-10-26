@@ -17,3 +17,6 @@
 
 ### 寻找一种易于理解的一致性算法（扩展版）
 [https://github.com/maemual/raft-zh_cn/blob/master/raft-zh_cn.md](https://github.com/maemual/raft-zh_cn/blob/master/raft-zh_cn.md)
+
+
+### 而这个MRO列表的构造是通过一个'C3线性化算法'来实现的
