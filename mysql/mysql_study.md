@@ -1402,3 +1402,76 @@ select _utf8 'hello world' COLLATE utf8_bin;
 
 * 停用词列表中的词都不会被索引。默认的停用词根据通用英语的使用来设置，可以使用参数`ft_stopword_file`指定一组外部文件来使用自定义的停用词。
 * 对于长度大于`ft_min_word_len`的词语和长度小于`ft_max_word_len`的词语，都不会被索引。
+
+#### 7.10.1 自然语言的全文索引
+自然语言搜索引擎将计算每一个文档对象和查询的相关度。相关度是基于匹配的关键词个数，以及关键词在文档中的出现的次数。在整个索引中出现次数越少的词语，匹配时的相关度就越高。
+```
+select film_id, title, right(description, 25),
+	match(title, description) against('factory cascualties') as relevance from sakila.film_text where match(title, description) against('factory cascualties');
+```
+和普通查询不同，这类查询自动按照相似度进行排序。在使用全文索引进行排序的时候，MySQL无法使用索引排序。所以如果不想使用文件排序的话，那么就不在查询中使用order by子句。
+
+在一个查询中使用两次match不会有额外的消耗，MySQL只会做一次搜索。但如果将match()函数放到order by子句中，MySQL将会使用文件排序。
+
+在match()函数中指定的列必须和全文索引中指定的列完全相同。否则就无法使用全文索引。
+
+```
+select film_id, right(description, 25),
+round(match(title, description) against('factory casualties'), 3) as full_rel,
+round(match(title) against('factory casualties'), 3) as title_rel
+from sakila.film_text
+where match(title, description) against('factory casualties') order by (2 * match(title) against('factory casualties')) + match(title, description) against('factory casuslties') desc;
+```
+
+#### 7.10.2 布尔全文索引
+在布尔搜索中，用户可以在查询中自定义某个被搜索的词语的相关性。
+
+布尔全文搜索通用修饰符
+
+* dinosaur 包含‘dinosaur’的行rank 值更高
+* ~ dinosaur 包含‘dinosaur’的行rank 值更低
+* + dinosaur 行记录必须包含‘dinosaur’
+* —dinosaur 行记录不可以包含‘dinosaur’
+* dino* 包含以‘dino’开头的单词的行rank值更高
+
+```
+select film_id, title, right(description, 25)
+from sakila.film_text
+where match(title, description)
+against('+factory +casualties' in boolean mode);
+
+select film_id, title, right(description, 25)
+from sakila.film_text
+where match(title, description)
+against('"spirited casualties"' in boolean mode);
+```
+只有MyISAM引擎才能使用布尔全文索引，但并不是一定要有全文索引才能使用布尔全文搜索。
+
+MySQL的全文索引只有全部在内存中的时候，性能才非常好。相比其他索引类型，当INSERT,UPDATE, DELETE操作时，全文索引的操作代价很大。
+
+* 修改一段文本中的100个单词，需要100次索引操作，而不是一次
+* 列长度直接影响全文索引的性能，三个单词的文本和10000个单词的文本，性能可能相差几个数量级
+* 全文索引会有更多的碎片，需要更多的optimize table操作。
+* - 
+* 全文索引只能做全文搜索匹配。其他的操作如where，都必须在MySQL完成全文搜索返回记录后才能进行。
+* 全文索引不存储索引列的实际值，无法使用索引覆盖扫描。
+* 除了相关排序，全文索引不能使用其他排序，其他都需要使用文件排序。
+
+#### 7.10.5 全文索引的配置和优化
+全文索引需要经常使用optimize table来减少碎片，提升性能。
+
+如果希望全文索引能够高效地工作，需要保证索引缓存足够大，从而保证所有的全文索引都能够缓存在内存中。可以设置键缓存（key cache），保证不会被其他的索引缓存挤出内存。
+
+提供一个好的停用词表。
+
+忽略一些太短的单词，也可以提升全文索引的效率，但会降低精度。
+
+当调整‘允许最小词长’，需要通过Optimize table来重新建立索引才会生效。
+
+全文索引的更新是一个消耗很大的操作，当向一个有全文索引的表中导入大量数据的时候，可以通过disable keys来禁用全文索引，然后在导入数据后enable keys来建立全文索引。
+
+如果数据特别大，还可以对数据进行手动分区。
+
+
+
+
