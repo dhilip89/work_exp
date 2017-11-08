@@ -22,3 +22,4 @@
 19. 幸 FUFJ
 20. 逐 EPI
 21. 戒 AAK
+22. 奔 DFAJ
