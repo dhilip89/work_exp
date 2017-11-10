@@ -24,3 +24,4 @@
 21. 戒 AAK
 22. 奔 DFAJ
 23. 逐 EPI
+24. 养 UDYJ
