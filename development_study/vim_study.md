@@ -64,3 +64,44 @@ Example
 ```
 :%s/,/\r,/g
 ```
+
+
+## 跨文件跳转到定义
+```
+:tag <varname>
+
+或者 Ctrl+] （写到这里突然想到了Vim的帮助文档的tags就是这么跳转的）
+
+甚至 Ctrl+鼠标左键
+
+来跳转到定义了。具体做法如下：
+
+按　Ctrl+t　从一个tag返回到原来的位置。或者　Ctrl+o ，用Vim本身的上一个位置返回（如果移动了很多次，需要按好多次才能返回到原来位置）。
+
+首先系统需要安装ctags，这个通过软件源或者 ctags官方网站 都可以安装。
+
+在工程目录下生成tags文件：
+
+ctags -R # 遍历所有目录，默认输出文件是 tags
+ctags -e -R # 同上，但是生成的TAGS是给Emacs用的
+在 ~/.vimrc 中添加
+
+set tags=./tags;/
+
+
+Ctrl+] - go to definition
+Ctrl+T - Jump back from the definition.
+Ctrl+W Ctrl+] - Open the definition in a horizontal split
+
+Add these lines in vimrc
+map <C-\> :tab split<CR>:exec("tag ".expand("<cword>"))<CR>
+map <A-]> :vsp <CR>:exec("tag ".expand("<cword>"))<CR>
+
+Ctrl+\ - Open the definition in a new tab
+Alt+] - Open the definition in a vertical split
+
+After the tags are generated. You can use the following keys to tag into and tag out of functions:
+
+Ctrl+Left MouseClick - Go to definition
+Ctrl+Right MouseClick - Jump back from definition
+```
