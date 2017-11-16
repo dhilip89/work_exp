@@ -104,4 +104,12 @@ After the tags are generated. You can use the following keys to tag into and tag
 
 Ctrl+Left MouseClick - Go to definition
 Ctrl+Right MouseClick - Jump back from definition
+
+ ctrl+]    - 找到光标所在位置的标签定义的地方
+ ctrl+t    - 回到跳转之前的标签处
+
+ <c-w> + ] - 分屏跳转到定义
+
+ <c-w> + } - 预览窗口跳转到定义
+ <c-w> + z - 关闭预览窗口
 ```
