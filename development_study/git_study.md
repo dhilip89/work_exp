@@ -61,3 +61,6 @@ git fetch -p
 #### github clone push 提速
 
 >其实git clone或者git push特别慢，并不是因为http://github.com的这个域名被限制了。而是"http://github.global.ssl.fastly.Net"这个域名被限制了。那么首先查到这个域名的ip。然后再hosts文件中进行ip->域名映射就可以了。这个办法会让clone或者push速度飞起。
+
+#### fatal: refusing to merge unrelated histories
+因为他们是两个不同的项目，要把两个不同的项目合并，git需要添加一句代码，在git pull，这句代码是在git 2.9.2版本发生的，最新的版本需要添加--allow-unrelated-histories

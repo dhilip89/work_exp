@@ -411,3 +411,44 @@ python 匹配中文和英文
 [u'china', u'American']
  
 ```
+
+
+### canda install dlib
+```
+conda create -n python35 python=3.5
+To install this package with conda run:
+conda install -c menpo dlib 
+```
+
+### conda install opencv3
+```
+To install this package with conda run:
+conda install -c menpo opencv3 
+remind: python version <= 3.5 for now
+```
+
+
+#### brew install dlib opencv
+```
+1. brew install openblas
+2. brew install opencv
+3. brew install boost
+4. brew install boost-python --with-python3
+3. install X11
+   cd /user/local/opt
+   ln -s /opt/X11 X11
+4. git clone https://github.com/davisking/dlib.git
+   cd dlib/examples
+   mkdir build
+   cd build
+   cmake .. -DUSE_SSE4_INSTRUCTIONS=ON
+   cmake --build . --config Release
+
+   cd dlib
+   python setup.py install
+   不报错则说明安装成功
+5. 测试试是否安装成功
+  python
+  import cv2
+  import dib
+```
