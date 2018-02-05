@@ -29,3 +29,9 @@
  * $ hadoop jar <local-jar-file> <java-class> <hdfs-input-file> <hdfs-output-dir>
 
  * $ hadoop jar sandbox-mapred-0.0.20.jar sandbox.mapred.WordCountJob /user/cl/input.dat /user/cl/outputdir  *  * 杀死某个正在运行的Job  * 假设Job_Id为：job_201207121738_0001  * $ hadoop job -kill job_201207121738_0001
+
+ 
+## map reduce  yarn
+> yarn允许应用程序为任务请求任意规模的内存量(需在预定范围内),节点管理器从一个内存池中中分配内存,这意味着可同时运行数据依赖于内存需求量,而非槽数量
+>
+> 基于槽的模型导致集群未被充分利用,原因是map和reduce的槽之间的比率是固定的,不同的阶段,map-reduce的槽的需求会不断变化. 
