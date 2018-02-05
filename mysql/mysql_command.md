@@ -1036,3 +1036,22 @@ insert into teacher values('','jack','大连二中','1975-12-23');
 mysql -uroot -p密码 < c:\school.sql
 如果成功，空出一行无任何显示；如有错误，会有提示。（以上命令已经调试，你只要将//的注释去掉即可使用）。
 （2）或者进入命令行后使用 mysql> source c:\school.sql; 也可以将school.sql文件导入数据库中。
+
+
+ALTER TABLE video ADD category_id int(11) unsigned not null DEFAULT '0' COMMENT '视频分类id';
+
+
+修改字段名：
+alter table 表名 rename column A to B
+ALTER TABLE video RENAME COLUMN category_id TO cid;
+
+
+修改字段类型：
+alter table 表名 modify column 字段名 类型 约束 [默认值, 注释];
+ALTER TABLE video MODIFY COLUMN category_id smallint(5) unsigned not null DEFAULT '0' COMMENT '视频分类id';
+
+
+修改字段默认值
+alter table 表名 alter column 字段名 drop default; --(若本身存在默认值，则先删除)
+alter table 表名 alter column 字段名 set default 默认值; --(若本身不存在则可以直接设定)
+ALTER TABLE video ALTER COLUMN sort SET DEFAULT '50';

@@ -5,11 +5,11 @@
 	
 2. spark原理  
 	* Spark应用转换流程
-		* 1. spark应用提交后，经历了一系列的转换，最后成为task在每个节点上执行
-		* 2. RDD的Action算子触发Job的提交，生成RDD DAG
-		* 3. 由DAGScheduler将RDD DAG转化为Stage DAG，每个Stage中产生相应的Task集合
-		* 4. TaskScheduler将任务分发到Executor执行
-		* 5. 每个任务对应相应的一个数据块，只用用户定义的函数处理数据块
+		* 1.spark应用提交后，经历了一系列的转换，最后成为task在每个节点上执行
+		* 2.RDD的Action算子触发Job的提交，生成RDD DAG
+		* 3.由DAGScheduler将RDD DAG转化为Stage DAG，每个Stage中产生相应的Task集合
+		* 4.TaskScheduler将任务分发到Executor执行
+		* 5.每个任务对应相应的一个数据块，只用用户定义的函数处理数据块
 
 
 	* Driver运行在Worker上
