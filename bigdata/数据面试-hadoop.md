@@ -47,49 +47,54 @@
 下面简单说一下：后面慢慢琢磨：在mapreduce中，map多，reduce少。
 在reduce中由于数据量比较多，所以干脆，我们先把自己map里面的数据归类，这样到了reduce的时候就减轻了压力。
 
-7. 每个map task都有一个内存缓冲区，存储着map的输出结果，当缓冲区快满的时候需要将缓冲区的数据该如何处理？
+7. Shuffle产生的意义是什么？
+Shuffle过程的期望可以有： 
+	* 完整地从map task端拉取数据到reduce 端。
+	* 在跨节点拉取数据时，尽可能地减少对带宽的不必要消耗。
+	* 减少磁盘IO对task执行的影响。
+
+8. 每个map task都有一个内存缓冲区，存储着map的输出结果，当缓冲区快满的时候需要将缓冲区的数据该如何处理？
 	* 每个map task都有一个内存缓冲区，存储着map的输出结果，当缓冲区快满的时候需要将缓冲区的数据以一个临时文件的方式存放到磁盘，当整个map task结束后再对磁盘中这个map task产生的所有临时文件做合并，生成最终的正式输出文件，然后等待reduce task来拉数据。
 
-8. MapReduce提供Partitioner接口，它的作用是什么？
+9. MapReduce提供Partitioner接口，它的作用是什么？
 	* MapReduce提供Partitioner接口，它的作用就是根据key或value及reduce的数量来决定当前的这对输出数据最终应该交由哪个reduce task处理。默认对key hash后再以reduce task数量取模。默认的取模方式只是为了平均reduce的处理能力，如果用户自己对Partitioner有需求，可以订制并设置到job上。
 
-9. 什么是溢写？
+10. 什么是溢写？
 	* 在一定条件下将缓冲区中的数据临时写入磁盘，然后重新利用这块缓冲区。这个从内存往磁盘写数据的过程被称为Spill，中文可译为溢写。
 	
-10. 溢写是为什么不影响往缓冲区写map结果的线程？
+11. 溢写是为什么不影响往缓冲区写map结果的线程？
 	* 溢写线程启动时不应该阻止map的结果输出，所以整个缓冲区有个溢写的比例spill.percent。这个比例默认是0.8，也就是当缓冲区的数据已经达到阈值（buffer size * spill percent = 100MB * 0.8 = 80MB），溢写线程启动，锁定这80MB的内存，执行溢写过程。Map task的输出结果还可以往剩下的20MB内存中写，互不影响。
 
-11. 当溢写线程启动后，需要对这80MB空间内的key做排序(Sort)。排序是MapReduce模型默认的行为，这里的排序也是对谁的排序？
+12. 当溢写线程启动后，需要对这80MB空间内的key做排序(Sort)。排序是MapReduce模型默认的行为，这里的排序也是对谁的排序？
 	* 当溢写线程启动后，需要对这80MB空间内的key做排序(Sort)。排序是MapReduce模型默认的行为，这里的排序也是对序列化的字节做的排序。 
 
-12. 溢写过程中如果有很多个key/value对需要发送到某个reduce端去，那么如何处理这些key/value值？
+13. 溢写过程中如果有很多个key/value对需要发送到某个reduce端去，那么如何处理这些key/value值？
 	* 如果有很多个key/value对需要发送到某个reduce端去，那么需要将这些key/value值拼接到一块，减少与partition相关的索引记录。
 
-13. 哪些场景才能使用Combiner呢？
+14. 哪些场景才能使用Combiner呢？
 	* Combiner的输出是Reducer的输入，Combiner绝不能改变最终的计算结果。所以从我的想法来看，Combiner只应该用于那种Reduce的输入key/value与输出key/value类型完全一致，且不影响最终结果的场景。比如累加，最大值等。Combiner的使用一定得慎重，如果用好，它对job执行效率有帮助，反之会影响reduce的最终结果。 
 
-14. Merge的作用是什么？
+15. Merge的作用是什么？
 	* 最终磁盘中会至少有一个这样的溢写文件存在(如果map的输出结果很少，当map执行完成时，只会产生一个溢写文件)，因为最终的文件只有一个，所以需要将这些溢写文件归并到一起，这个过程就叫做Merge
 
-15. 每个reduce task不断的通过什么协议从JobTracker那里获取map task是否完成的信息？
+16. 每个reduce task不断的通过什么协议从JobTracker那里获取map task是否完成的信息？
 	* 每个reduce task不断地通过RPC从JobTracker那里获取map task是否完成的信息
 
-16. reduce中Copy过程采用是什么协议？
+17. reduce中Copy过程采用是什么协议？
 	* Copy过程，简单地拉取数据。Reduce进程启动一些数据copy线程(Fetcher)，通过HTTP方式请求map task所在的TaskTracker获取map task的输出文件。
 
-17. reduce中merge过程有几种方式？
+18. reduce中merge过程有几种方式？
 	* merge有三种形式：1)内存到内存  2)内存到磁盘  3)磁盘到磁盘。默认情况下第一种形式不启用，让人比较困惑，是吧。当内存中的数据量到达一定阈值，就启动内存到磁盘的merge。与map 端类似，这也是溢写的过程，这个过程中如果你设置有Combiner，也是会启用的，然后在磁盘中生成了众多的溢写文件。第二种merge方式一直在运行，直到没有map端的数据时才结束，然后启动第三种磁盘到磁盘的merge方式生成最终的那个文件。
 
-18.  Mapreduce 的 map 数量 和 reduce 数量 怎么确定 ,怎么配置?
+19.  Mapreduce 的 map 数量 和 reduce 数量 怎么确定 ,怎么配置?
 	* map的数量由数据块决定，reduce数量随便配置。 
-19. shuffle 阶段,你怎么理解的 
+20. shuffle 阶段,你怎么理解的 
 	* shuffle过程包括在Map和Reduce两端中。 
-20. 我们开发job时，是否可以去掉reduce阶段。 
+21. 我们开发job时，是否可以去掉reduce阶段。 
 	* 可以。设置reduce数为0 即可。 
-21. datanode在什么情况下不会备份 
+22. datanode在什么情况下不会备份 
 	* datanode在强制关闭或者非正常断电不会备份。 
-22. combiner出现在那个过程 
-	* 出现在map阶段的map方法后等。 
+ 
 23. hdfs的体系结构 
 	* hdfs有namenode、secondraynamenode、datanode组成。 为n+1模式 
 	* namenode负责管理datanode和记录元数据 
@@ -130,3 +135,24 @@
 32. NameNode的HA
 	* NameNode的HA一个备用，一个工作，且一个失败后，另一个被激活。他们通过journal node来实现共享数据。
 更多:Hadoop之NameNode+ResourceManager高可用原理分析
+
+33. combiner出现在那个过程 
+	* 出现在map阶段的map方法后等。
+
+34. shuffer的流程是什么?
+	[https://www.cnblogs.com/jxhd1/p/6528633.html](https://www.cnblogs.com/jxhd1/p/6528633.html)
+	[http://blog.csdn.net/tanggao1314/article/details/51275812](http://blog.csdn.net/tanggao1314/article/details/51275812)
+	* Shuffle实际上包括map端和reduce端的两个过程，在map端中我们称之为前半段，在reduce端我们称之为后半段
+	* Shuffle前半段过程主要包括：
+		* 1、split过程
+	
+		> 在map task执行时，它的输入数据来源于HDFS的block，当然在MapReduce概念中，map task只读取split。Split与block的对应关系可能是多对一，默认是一对一.将文件拆分成splits(片)，并将每个split按行分割形成<key,value>对.
+		
+		* 2、partition过程：partition是分割map每个节点的结果，按照key分别映射给不同的reduce，也是可以自定义的。
+		* 3、溢写过程
+		* 4、Merge过程
+	* 简单地说，reduce task在执行之前的工作就是不断地拉取当前job里每个map task的最终结果，然后对从不同地方拉取过来的数据不断地做merge，也最终形成一个文件作为reduce task的输入文件
+	* Shuffle在reduce端的过程也能用三点来概括, 当前reduce copy数据的前提是它要从JobTracker获得有哪些map task已执行结束。Reducer真正运行之前，所有的时间都是在拉取数据，做merge，且不断重复地在做
+		* 1.Copy过程，简单地拉取数据。Reduce进程启动一些数据copy线程(Fetcher)，通过HTTP方式请求map task所在的TaskTracker获取map task的输出文件。因为map task早已结束，这些文件就归TaskTracker管理在本地磁盘中。 
+		* 2.Merge阶段。这里的merge如map端的merge动作，只是数组中存放的是不同map端copy来的数值。Copy过来的数据会先放入内存缓冲区中，这里的缓冲区大小要比map端的更为灵活，它基于JVM的heap size设置，因为Shuffle阶段Reducer不运行，所以应该把绝大部分的内存都给Shuffle用。这里需要强调的是，merge有三种形式：1)内存到内存  2)内存到磁盘  3)磁盘到磁盘。默认情况下第一种形式不启用，让人比较困惑，是吧。当内存中的数据量到达一定阈值，就启动内存到磁盘的merge。与map 端类似，这也是溢写的过程，这个过程中如果你设置有Combiner，也是会启用的，然后在磁盘中生成了众多的溢写文件。第二种merge方式一直在运行，直到没有map端的数据时才结束，然后启动第三种磁盘到磁盘的merge方式生成最终的那个文件。 
+		* 3.Reducer的输入文件。不断地merge后，最后会生成一个“最终文件”。为什么加引号？因为这个文件可能存在于磁盘上，也可能存在于内存中。对我们来说，当然希望它存放于内存中，直接作为Reducer的输入，但默认情况下，这个文件是存放于磁盘中的。当Reducer的输入文件已定，整个Shuffle才最终结束。然后就是Reducer执行，把结果放到HDFS上。 	
