@@ -235,3 +235,16 @@ Spark的核心编程是什么？其实，就是：
 第四，最后，就是获得最终的数据，将数据保存起来。 
 2. SQL查询：底层都是RDD和计算操作 
 3. 实时计算：底层都是RDD和计算操作
+
+### 两种方式实现word_count
+```
+//1.
+textFile = spark.read.textFile("../readme.md")
+val words = textFile.flatMap({line => line.split(" ")}).groupByKey(identity).count()
+varl wordCounts = words.collect()
+
+//2.
+textFile = sctextFile("../readme.md")
+val words = textFile.flatMat(line => line.split(" "))
+val wordsCount = words.map(line => (line, 1)).reduceByKey((x, y) => x+ y)
+```
